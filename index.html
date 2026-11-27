@@ -328,6 +328,8 @@
             border-color: #c84b31; background: #f9e5df;
         }
         .uf-toolbar-divider { height: 26px; width: 1px; background: #b9aea0; margin: 0 4px; }
+        .uf-align-control { display: inline-flex; align-items: center; gap: 3px; }
+        .uf-align-control small { font: 10px 'Space Mono', monospace; color: #756b60; }
         .uf-writing-editor {
             border: 1px solid #d5cec2; border-radius: 0 0 10px 10px;
             min-height: 245px; max-height: 470px; overflow-y: auto;
@@ -653,10 +655,10 @@
                             <button type="button" data-cmd="italic" title="Italic (Ctrl+I)" aria-label="Italic"><em>I</em></button>
                             <button type="button" data-cmd="underline" title="Underline (Ctrl+U)" aria-label="Underline"><u>U</u></button>
                             <span class="uf-toolbar-divider" aria-hidden="true"></span>
-                            <button type="button" data-cmd="left" title="Align Left" aria-label="Align Left">≡</button>
-                            <button type="button" data-cmd="center" title="Align Center" aria-label="Align Center">☰</button>
-                            <button type="button" data-cmd="right" title="Align Right" aria-label="Align Right">≡</button>
-                            <button type="button" data-cmd="justify" title="Justify" aria-label="Justify">☷</button>
+                            <button type="button" data-cmd="left" title="Rata kiri" aria-label="Rata kiri"><span class="uf-align-control">≡ <small>L</small></span></button>
+                            <button type="button" data-cmd="center" title="Rata tengah" aria-label="Rata tengah"><span class="uf-align-control">≡ <small>C</small></span></button>
+                            <button type="button" data-cmd="right" title="Rata kanan" aria-label="Rata kanan"><span class="uf-align-control">≡ <small>R</small></span></button>
+                            <button type="button" data-cmd="justify" title="Rata kiri-kanan (Justify)" aria-label="Justify"><span class="uf-align-control">☷ <small>J</small></span></button>
                         </div>
                         <div id="uf-rich-editor" class="uf-writing-editor" contenteditable="true" role="textbox" aria-label="Isi tulisan lengkap" aria-multiline="true" data-placeholder="Tulis atau tempel naskah cerita, puisi, atau esai di sini..." spellcheck="true"></div>
                         <textarea id="workFullText" class="hidden" tabindex="-1" aria-hidden="true"></textarea>
