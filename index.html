@@ -312,6 +312,52 @@
             border-radius: 6px;
         }
 
+        /* UNFILED Writings: a typewriter-paper rich text editor. */
+        .uf-writing-toolbar {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+            background: #eee8dd; border: 1px solid #d5cec2; border-bottom: 0;
+            border-radius: 10px 10px 0 0; padding: 7px;
+        }
+        .uf-writing-toolbar button {
+            min-width: 38px; min-height: 34px; border: 1px solid #d3cabe;
+            border-radius: 7px; background: #fffcf7; color: #22201e;
+            font-size: 16px; line-height: 1; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .uf-writing-toolbar button:hover, .uf-writing-toolbar button:focus-visible {
+            border-color: #c84b31; background: #f9e5df;
+        }
+        .uf-toolbar-divider { height: 26px; width: 1px; background: #b9aea0; margin: 0 4px; }
+        .uf-writing-editor {
+            border: 1px solid #d5cec2; border-radius: 0 0 10px 10px;
+            min-height: 245px; max-height: 470px; overflow-y: auto;
+            padding: 17px; outline: none; background: #fffdf9;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 19px; line-height: 1.65; white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+        .uf-writing-editor:focus {
+            border-color: #c84b31; box-shadow: inset 0 0 0 1px #c84b31;
+        }
+        .uf-writing-editor:empty::before {
+            content: attr(data-placeholder); color: #968d81; pointer-events: none;
+        }
+        .uf-writing-editor p, .uf-reader-rich p,
+        .uf-writing-editor blockquote, .uf-reader-rich blockquote { margin: 0 0 .75em; }
+        .uf-writing-editor blockquote, .uf-reader-rich blockquote {
+            border-left: 3px solid #c84b31; padding-left: 1em;
+        }
+        .uf-reader-rich { white-space: normal; overflow-wrap: anywhere; }
+        .uf-reader-rich div, .uf-reader-rich p, .uf-reader-rich blockquote { white-space: pre-wrap; }
+        .uf-soundtrack {
+            border: 1px solid #e3ddd1; border-radius: 10px; padding: 11px;
+            background: #faf7f0; min-width: 0;
+        }
+        .uf-soundtrack-label {
+            margin: 0 0 8px; font: 10px 'Space Mono', monospace;
+            letter-spacing: .06em; color: #62594f;
+        }
+        .uf-soundtrack iframe { display: block; border-radius: 9px; min-width: 0; }
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.95) translateY(10px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
@@ -570,9 +616,14 @@
                         <input type="text" id="workDuration" placeholder="Misal: 6 Jam / 3 Hari" required class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
                     </div>
 
-                    <div class="flex flex-col gap-1.5">
+                    <div class="flex flex-col gap-1.5" id="groupTools">
                         <label for="workTools" class="font-mono-tech text-xs font-bold uppercase">Aplikasi / Tools *</label>
                         <input type="text" id="workTools" placeholder="Misal: Clip Studio Paint, Canva" required class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                    </div>
+                    <div class="flex flex-col gap-1.5 hidden" id="groupSpotify">
+                        <label for="workSpotify" class="font-mono-tech text-xs font-bold uppercase">♫ Add Song / Spotify (Opsional)</label>
+                        <input type="url" id="workSpotify" inputmode="url" placeholder="https://open.spotify.com/track/..." class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm" autocomplete="off">
+                        <p class="text-[11px] leading-relaxed text-[#72695e]">Tempel tautan lagu, album, playlist, atau episode Spotify. Saat tulisan dibaca, pemutar muncul tanpa menampilkan URL mentah.</p>
                     </div>
 
                     <div class="flex flex-col gap-1.5">
@@ -597,7 +648,19 @@
 
                     <div class="sm:col-span-2 hidden flex-col gap-1.5" id="groupWritingBody">
                         <label for="workFullText" class="font-mono-tech text-xs font-bold uppercase">Isi Tulisan Lengkap *</label>
-                        <textarea id="workFullText" rows="6" placeholder="Tulis atau tempel naskah cerita, puisi, atau esai di sini..." class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm"></textarea>
+                        <div id="uf-writing-toolbar" class="uf-writing-toolbar" role="toolbar" aria-label="Format tulisan">
+                            <button type="button" data-cmd="bold" title="Bold (Ctrl+B)" aria-label="Bold"><strong>B</strong></button>
+                            <button type="button" data-cmd="italic" title="Italic (Ctrl+I)" aria-label="Italic"><em>I</em></button>
+                            <button type="button" data-cmd="underline" title="Underline (Ctrl+U)" aria-label="Underline"><u>U</u></button>
+                            <span class="uf-toolbar-divider" aria-hidden="true"></span>
+                            <button type="button" data-cmd="left" title="Align Left" aria-label="Align Left">≡</button>
+                            <button type="button" data-cmd="center" title="Align Center" aria-label="Align Center">☰</button>
+                            <button type="button" data-cmd="right" title="Align Right" aria-label="Align Right">≡</button>
+                            <button type="button" data-cmd="justify" title="Justify" aria-label="Justify">☷</button>
+                        </div>
+                        <div id="uf-rich-editor" class="uf-writing-editor" contenteditable="true" role="textbox" aria-label="Isi tulisan lengkap" aria-multiline="true" data-placeholder="Tulis atau tempel naskah cerita, puisi, atau esai di sini..." spellcheck="true"></div>
+                        <textarea id="workFullText" class="hidden" tabindex="-1" aria-hidden="true"></textarea>
+                        <p class="text-[11px] text-[#72695e] mt-1">Sorot kata atau paragraf, lalu pilih format. Ctrl+B / Ctrl+I / Ctrl+U juga tersedia.</p>
                     </div>
 
                     <div class="sm:col-span-2 flex flex-col gap-1.5">
@@ -973,26 +1036,20 @@
             const groupImg = document.getElementById("groupImageUpload");
             const groupText = document.getElementById("groupWritingBody");
             const groupLink = document.getElementById("groupLink");
+            const groupTools = document.getElementById("groupTools");
+            const groupSpotify = document.getElementById("groupSpotify");
             const toolsInput = document.getElementById("workTools");
-
-            if (cat === "writings") {
-                groupImg.classList.add("hidden");
-                groupText.classList.remove("hidden");
-                groupText.classList.add("flex");
-                groupLink.classList.add("hidden");
-                toolsInput.placeholder = "Misal: Google Docs, Notion, MS Word";
-            } else if (cat === "web") {
-                groupImg.classList.remove("hidden");
-                groupText.classList.add("hidden");
-                groupLink.classList.remove("hidden");
-                groupLink.classList.add("flex");
-                toolsInput.placeholder = "Misal: HTML, CSS, JavaScript, Vercel";
-            } else {
-                groupImg.classList.remove("hidden");
-                groupText.classList.add("hidden");
-                groupLink.classList.add("hidden");
-                toolsInput.placeholder = "Misal: Clip Studio Paint, Procreate, Canva";
-            }
+            const writing = cat === "writings";
+            groupImg.classList.toggle("hidden", writing);
+            groupText.classList.toggle("hidden", !writing);
+            groupText.classList.toggle("flex", writing);
+            groupLink.classList.toggle("hidden", cat !== "web");
+            groupLink.classList.toggle("flex", cat === "web");
+            groupTools.style.display = writing ? "none" : "flex";
+            groupSpotify.style.display = writing ? "flex" : "none";
+            toolsInput.required = !writing;
+            toolsInput.placeholder = cat === "web" ? "Misal: HTML, CSS, JavaScript, Vercel"
+              : "Misal: Clip Studio Paint, Procreate, Canva";
         }
 
         function previewUploadedImage(event) {
@@ -1167,6 +1224,7 @@
       body:not(.unfiled-admin) .btn-delete-item { display: none !important; }
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2.57.4"></script>
+    <script src="./unfiled-writing.js"></script>
     <script src="./unfiled-cloud.js"></script>
     <script src="./unfiled-crop.js"></script>
 </body>
