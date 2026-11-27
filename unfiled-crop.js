@@ -1,7 +1,7 @@
 /* UNFILED. picture framing editor. Client-side only: no photo sent until owner saves. */
 (function () {
   'use strict';
-  var selections = new Map(), previews = new Map();
+  var selections = new Map(), previews = new Map(), redoButtons = new Map();
   var current = null, dragging = null;
   var css = document.createElement('style');
   css.textContent = [
@@ -69,6 +69,8 @@
     var old = previews.get(id);
     if (old) URL.revokeObjectURL(old);
     previews.delete(id);
+    var redo = redoButtons.get(id);
+    if (redo) redo.hidden=true;
     if (id === 'workImageFile') {
       var preview = document.getElementById('uploadPreviewImg');
       if (preview) { preview.removeAttribute('src'); preview.classList.add('hidden'); }
@@ -117,6 +119,7 @@
     var id = current.id;
     resetSelection(id);
     selections.set(id, file);
+    var redo=redoButtons.get(id);if(redo)redo.hidden=false;
     var objectURL = URL.createObjectURL(file);
     previews.set(id,objectURL);
     if (id === 'workImageFile') {
@@ -181,6 +184,22 @@
     }, true);
   });
 
+  ['workImageFile','editHomePhotoFile'].forEach(function(id) {
+    var input = document.getElementById(id);
+    if (!input) return;
+    var button = document.createElement('button');
+    button.type='button';button.hidden=true;
+    button.className='mt-2 inline-flex text-[11px] font-mono-tech text-[#c84b31] underline underline-offset-4 cursor-pointer';
+    button.textContent='✎ Atur ulang crop foto';
+    button.addEventListener('click',function(e){
+      e.stopPropagation();
+      var file=input.files&&input.files[0];
+      if(file)begin(input,file);
+      else input.click();
+    });
+    input.parentElement.insertAdjacentElement('afterend',button);
+    redoButtons.set(id,button);
+  });
   dialog.querySelector('#uf-crop-x').addEventListener('click',cancel);
   dialog.querySelector('#uf-crop-cancel').addEventListener('click',cancel);
   dialog.addEventListener('click',function(e){if(e.target === dialog) cancel();});
