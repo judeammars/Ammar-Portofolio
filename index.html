@@ -1100,5 +1100,15 @@
         // Inisialisasi
         renderPortfolio();
     </script>
+    <!-- UNFILED owner controls: guests have strictly read-only UI. -->
+    <style id="unfiled-guest-protection">
+      body:not(.unfiled-admin) [onclick^="openUploadModal"],
+      body:not(.unfiled-admin) [onclick^="openEditProfileModal"],
+      body:not(.unfiled-admin) [onclick^="exportPortfolioJSON"],
+      body:not(.unfiled-admin) [onclick*="importFile"],
+      body:not(.unfiled-admin) .btn-delete-item { display: none !important; }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.57.4"></script>
+    <script src="./unfiled-cloud.js"></script>
 </body>
 </html>
