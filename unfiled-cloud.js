@@ -59,6 +59,7 @@ function httpURL(v){
 }
 function mapWork(w){return {id:w.id,category:w.category,title:w.title,duration:w.duration,
   tools:w.tools,date:w.date_label,image:w.image_url||'',imagePath:w.image_path||'',
+  thumbnail:w.thumbnail_url||'',thumbnailPath:w.thumbnail_path||'',
   link:w.link||'',fullText:w.full_text||'',description:w.description||'',
   isPublished:w.is_published!==false,sortOrder:w.sort_order||0};}
 async function reload(){
@@ -127,6 +128,31 @@ async function upload(file){
  if(response.error)throw response.error;
  return {url:db.storage.from(bucket).getPublicUrl(path).data.publicUrl,path:path};
 }
+// Preserve an uncropped image for the detail viewer. Large stills are reduced
+// proportionally, never cropped; the thumbnail crop is saved separately.
+async function prepareFullImage(file){
+ if(file.size<=5*1024*1024)return file;
+ if(file.type==='image/gif')throw Error('GIF utuh melebihi 5 MB. Kompres file asli sebelum mengunggah.');
+ var bitmap;
+ try{bitmap=await createImageBitmap(file);}catch(e){throw Error('Gambar asli tidak dapat diproses. Gunakan JPG, PNG, atau WebP.');}
+ try{
+  var maxDim=Math.max(bitmap.width,bitmap.height);
+  var limit=Math.min(3200,maxDim),quality=.88;
+  for(var attempt=0;attempt<9;attempt++){
+   var scale=Math.min(1,limit/maxDim),canvas=document.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+   canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+   canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+   var blob=await new Promise(function(resolve){canvas.toBlob(resolve,'image/webp',quality);});
+   canvas.width=0;canvas.height=0;
+   if(blob&&blob.size<=5*1024*1024){
+    return new File([blob],file.name.replace(/\.[^.]+$/,'')+'-full.webp',{type:'image/webp'});
+   }
+   if(quality>.62)quality-=.07;else limit=Math.round(limit*.82);
+  }
+  throw Error('Gambar masih terlalu besar. Coba perkecil ukuran file asli.');
+ }finally{bitmap.close();}
+}
 async function deleteImage(path){
  if(!path)return;
  var result=await db.storage.from(bucket).remove([path]);
@@ -176,34 +202,53 @@ function edit(id){
 window.handleSaveWork=async function(event){
  event.preventDefault();if(!guard())return;
  var btn=document.querySelector('#uploadForm button[type=submit]');btn.disabled=true;btn.textContent='Saving…';
- var newPath='';
+ var uploadedPaths=[];
  try{
   var get=function(id){return document.getElementById(id).value.trim();};
   var category=get('workCategory'),old=portfolioState.works.find(function(w){return w.id===editingId;});
   var url=get('workImageUrl'),link=get('workLink');
   if(url&&!httpURL(url))throw Error('URL gambar harus HTTP(S).');
   if(link&&!httpURL(link))throw Error('URL website harus HTTP(S).');
-  var image=url||(old?old.image:''),path=url?'':(old?old.imagePath:'');
-  var file=(window.UNFILED_CROP&&window.UNFILED_CROP.getFile('workImageFile'))||document.getElementById('workImageFile').files[0];
-  if(file&&category!=='writings'){
-    var result=await upload(file);image=result.url;path=result.path;newPath=result.path;
+  var image=old?(old.image||''):'',path=old?(old.imagePath||''):'';
+  var thumbnail=old?(old.thumbnail||''):'',thumbnailPath=old?(old.thumbnailPath||''):'';
+  // External URLs supply the same uncropped image to cards and details.
+  if(url&&url!==image){image=url;path='';thumbnail='';thumbnailPath='';}
+  var original=document.getElementById('workImageFile').files[0];
+  var cropped=window.UNFILED_CROP&&window.UNFILED_CROP.getFile('workImageFile');
+  if(original&&category!=='writings'){
+    // Keep the entire original picture for the artwork detail view.
+    var full=await upload(await prepareFullImage(original));
+    uploadedPaths.push(full.path);
+    image=full.url;path=full.path;thumbnail='';thumbnailPath='';
+    // Separately upload the owner's framing as the fixed-size gallery thumbnail.
+    if(cropped&&cropped!==original){
+      var thumb=await upload(cropped);
+      uploadedPaths.push(thumb.path);
+      thumbnail=thumb.url;thumbnailPath=thumb.path;
+    }
   }
-  if(category==='writings'){image='';path='';}
+  if(category==='writings'){image='';path='';thumbnail='';thumbnailPath='';}
   var id=editingId||category+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
   var record={id:id,category:category,title:get('workTitle'),duration:get('workDuration'),
    tools:get('workTools'),date_label:get('workDate')||String(new Date().getFullYear()),
-   image_url:image||'',image_path:path||'',link:httpURL(link),
-   full_text:get('workFullText'),description:get('workDescription'),
+   image_url:image||'',image_path:path||'',
+   thumbnail_url:thumbnail||'',thumbnail_path:thumbnailPath||'',
+   link:httpURL(link),full_text:get('workFullText'),description:get('workDescription'),
    is_published:document.getElementById('uf-published').checked,
    sort_order:old?old.sortOrder:0,updated_at:new Date().toISOString()};
   if(!record.title||!record.duration||!record.tools)throw Error('Lengkapi judul, durasi, dan tools.');
   var save=await db.from('unfiled_works').upsert(record,{onConflict:'id'});
   if(save.error)throw save.error;
+  // Delete only superseded UNFILED files, once the database change succeeds.
   if(old&&old.imagePath&&old.imagePath!==path)await deleteImage(old.imagePath);
-  editingId=null;await reload();closeModal('uploadModal');if(window.UNFILED_CROP)window.UNFILED_CROP.reset('workImageFile');selectFolder(category);
-  showToast('Karya berhasil disimpan online.');
- }catch(ex){if(newPath)await deleteImage(newPath);showToast('Gagal menyimpan: '+ex.message,true);}
- finally{btn.disabled=false;btn.textContent='Simpan ke Folder';}
+  if(old&&old.thumbnailPath&&old.thumbnailPath!==thumbnailPath)await deleteImage(old.thumbnailPath);
+  editingId=null;await reload();closeModal('uploadModal');
+  if(window.UNFILED_CROP)window.UNFILED_CROP.reset('workImageFile');
+  selectFolder(category);showToast('Karya tersimpan. Thumbnail di-crop, foto detail tetap utuh.');
+ }catch(ex){
+  for(var savedPath of uploadedPaths)await deleteImage(savedPath);
+  showToast('Gagal menyimpan: '+ex.message,true);
+ }finally{btn.disabled=false;btn.textContent='Simpan ke Folder';}
 };
 window.deleteWork=async function(id){
  if(!guard())return;
@@ -217,6 +262,7 @@ window.deleteWork=async function(id){
  var result=await db.from('unfiled_works').delete().eq('id',id);
  if(result.error){showToast(result.error.message,true);return;}
  if(old&&old.imagePath)await deleteImage(old.imagePath);
+ if(old&&old.thumbnailPath)await deleteImage(old.thumbnailPath);
  await reload();showToast('Karya dihapus dari UNFILED.');
 };
 window.saveProfileChanges=async function(event){
