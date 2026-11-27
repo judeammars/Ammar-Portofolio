@@ -37,7 +37,7 @@
           return;
         }
         let target = document.createElement(name.toLowerCase());
-        const align = node.style && node.style.textAlign ? node.style.textAlign.toLowerCase() : '';
+        const align = (node.style && node.style.textAlign || node.getAttribute('align') || '').toLowerCase();
         if (alignments.has(align) && (name==='DIV'||name==='P'||name==='BLOCKQUOTE')) {
           target.style.textAlign = align;
         }
@@ -101,6 +101,7 @@
   function setEditor(html, fallback) {
     editor.innerHTML=html ? sanitizeHtml(html) : '';
     if (!html) editor.textContent=String(fallback||'');
+    selectedRange=null;
     hidden.value=editor.innerText;
   }
   function getHtml() {return sanitizeHtml(editor.innerHTML);}
@@ -114,6 +115,15 @@
     syncText();
   });
 
+  // Preserve the active text range when toolbar focus changes, including mobile.
+  let selectedRange = null;
+  document.addEventListener('selectionchange',function () {
+    const selection=window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+    if (editor.contains(selection.anchorNode) && editor.contains(selection.focusNode)) {
+      selectedRange=selection.getRangeAt(0).cloneRange();
+    }
+  });
   toolbar.querySelectorAll('button[data-cmd]').forEach(function (btn) {
     // Keep the selected text highlighted when the user clicks a formatting tool.
     btn.addEventListener('mousedown',function(e){e.preventDefault();});
@@ -121,6 +131,11 @@
       const command=commands[btn.dataset.cmd];
       if (!command) return;
       editor.focus();
+      if (selectedRange) {
+        const selection=window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(selectedRange);
+      }
       document.execCommand(command,false,null);
       syncText();
     });
