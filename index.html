@@ -126,12 +126,15 @@
             min-height: 560px;
             padding-bottom: 36px;
             z-index: 10 !important;
-            margin-top: 20px;
+            margin-top: 0;
             box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-top: none;
         }
 
-        /* Continue the previous folder material behind the open folder.
-           This fills the visible desk-colored strip between stacked folders. */
+        /* Seamless stacked folders: extend the preceding folder material
+           directly underneath the opened folder with no desk-colored gap. */
         .folder-layer.collapsed:has(+ .folder-layer.active) {
             border-bottom-left-radius: 0;
             border-bottom-right-radius: 0;
@@ -141,11 +144,10 @@
             position: absolute;
             left: 0;
             right: 0;
-            top: calc(100% - 1px);
-            height: 22px;
+            top: 100%;
+            height: 20px;
             background-color: inherit;
             background-image: var(--paper-noise);
-            border-radius: 0 0 14px 14px;
             pointer-events: none;
         }
 
