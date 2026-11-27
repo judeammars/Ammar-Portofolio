@@ -1,112 +1,1083 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#272321">
-  <meta name="description" content="UNFILED. — a curious collection of art, websites, words, and other small obsessions. Interactive creative portfolio prototype.">
-  <title>UNFILED. — a personal creative archive</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messy Desk Portfolio — Archive & Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-desk: #24211e;
+            --paper-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.07'/%3E%3C/svg%3E");
+            
+            /* Warna Folder terinspirasi dari meja kerja & arsip kertas */
+            --folder-web: #e3d6b8;      /* Warm Manila Kraft */
+            --folder-writings: #f3c6c0; /* Dusty Rose / Grid Note */
+            --folder-art: #d7e3e8;      /* Cool Vintage Blue-Grey */
+            --folder-home: #f6f2e9;     /* Off-white Archival Paper */
+            
+            --ink-dark: #22201e;
+            --ink-muted: #5a554f;
+            --accent-red: #c84b31;
+            --tape-color: rgba(235, 225, 195, 0.65);
+            --shadow-folder: 0 -10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-desk);
+            background-image: 
+                radial-gradient(circle at 50% 20%, #342f2a 0%, #1c1917 100%),
+                var(--paper-noise);
+            color: var(--ink-dark);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Garis grid meja kerja halus */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .font-mono-tech { font-family: 'Space Mono', monospace; }
+        .font-serif-editorial { font-family: 'Cormorant Garamond', serif; }
+        .font-handwriting { font-family: 'Caveat', cursive; }
+
+        /* Lapisan Folder Bertumpuk */
+        .folder-layer {
+            position: relative;
+            border-radius: 18px 18px 14px 14px;
+            background-image: var(--paper-noise);
+            box-shadow: var(--shadow-folder);
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease;
+            border-top: 1px solid rgba(255,255,255,0.65);
+        }
+
+        /* Kuping Tab Folder */
+        .folder-tab {
+            position: absolute;
+            top: -36px;
+            height: 38px;
+            padding: 0 22px;
+            border-radius: 14px 14px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            background-color: inherit;
+            background-image: var(--paper-noise);
+            box-shadow: 0 -6px 14px rgba(0,0,0,0.22);
+            border-top: 1px solid rgba(255,255,255,0.7);
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        .folder-tab:hover {
+            transform: translateY(-4px);
+        }
+
+        /* Posisi Urutan Folder (Belakang ke Depan) */
+        .folder-web { background-color: var(--folder-web); z-index: 1; margin-top: 38px; }
+        .folder-web .folder-tab { right: 4%; }
+
+        .folder-writings { background-color: var(--folder-writings); z-index: 2; margin-top: -18px; }
+        .folder-writings .folder-tab { left: 52%; }
+
+        .folder-art { background-color: var(--folder-art); z-index: 3; margin-top: -18px; }
+        .folder-art .folder-tab { left: 28%; }
+
+        .folder-home { background-color: var(--folder-home); z-index: 4; margin-top: -18px; }
+        .folder-home .folder-tab { left: 4%; }
+
+        /* State Folder Tertutup vs Aktif */
+        .folder-layer.collapsed {
+            height: 44px;
+            overflow: visible;
+            cursor: pointer;
+        }
+        .folder-layer.collapsed .folder-body {
+            display: none;
+        }
+        .folder-layer.collapsed:hover {
+            transform: translateY(-5px);
+        }
+
+        .folder-layer.active {
+            min-height: 560px;
+            padding-bottom: 36px;
+            z-index: 10 !important;
+            margin-top: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.55);
+        }
+
+        /* Quick Tab Switcher */
+        .q-tab {
+            padding: 7px 14px;
+            border-radius: 10px 10px 4px 4px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            color: var(--ink-dark);
+            opacity: 0.72;
+            transition: all 0.2s ease;
+        }
+        .q-tab:hover { opacity: 1; transform: translateY(-2px); }
+        .q-tab.active {
+            opacity: 1;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            outline: 2px solid #fff;
+        }
+        .q-tab[data-target="home"] { background: var(--folder-home); }
+        .q-tab[data-target="art"] { background: var(--folder-art); }
+        .q-tab[data-target="writings"] { background: var(--folder-writings); }
+        .q-tab[data-target="web"] { background: var(--folder-web); }
+
+        /* Washi Tape & Elemen Dekoratif */
+        .washi-tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(2deg);
+            width: 110px;
+            height: 24px;
+            background: var(--tape-color);
+            backdrop-filter: blur(2px);
+            border-left: 2px dotted rgba(0,0,0,0.12);
+            border-right: 2px dotted rgba(0,0,0,0.12);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .barcode-lines {
+            height: 28px;
+            width: 110px;
+            background: repeating-linear-gradient(
+                to right,
+                #222 0px, #222 2px,
+                transparent 2px, transparent 5px,
+                #222 5px, #222 6px,
+                transparent 6px, transparent 9px,
+                #222 9px, #222 13px,
+                transparent 13px, transparent 16px
+            );
+        }
+
+        /* Kartu Karya Miring (Messy Desk Cards) */
+        .work-card {
+            background: #ffffff;
+            padding: 14px 14px 16px;
+            border-radius: 6px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+            border: 1px solid rgba(0,0,0,0.07);
+            display: flex;
+            flex-direction: column;
+        }
+        .work-card:nth-child(odd) { transform: rotate(-1.1deg); }
+        .work-card:nth-child(even) { transform: rotate(1.2deg); }
+        .work-card:nth-child(3n) { transform: rotate(-0.4deg); }
+        .work-card:hover {
+            transform: translateY(-8px) rotate(0deg) scale(1.02) !important;
+            box-shadow: 0 18px 34px rgba(0,0,0,0.22);
+            z-index: 12;
+        }
+        .work-card::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            width: 76px;
+            height: 20px;
+            background: var(--tape-color);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            z-index: 2;
+        }
+
+        /* Pratinjau Kertas Bergaris untuk Writings */
+        .writing-sheet-preview {
+            width: 100%;
+            height: 190px;
+            padding: 14px;
+            background-color: #fffdf9;
+            background-image: linear-gradient(#e5dfd3 1px, transparent 1px);
+            background-size: 100% 24px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15.5px;
+            line-height: 24px;
+            color: #2f2c28;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 4px;
+        }
+        .writing-sheet-preview::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: linear-gradient(transparent, #fffdf9);
+        }
+
+        .inspect-writing-full {
+            width: 100%;
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fffdf9;
+            background-image: linear-gradient(#ece6da 1px, transparent 1px);
+            background-size: 100% 28px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            line-height: 28px;
+            white-space: pre-wrap;
+            color: #24211e;
+            border-radius: 6px;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop {
+            animation: popIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @media (max-width: 640px) {
+            .folder-tab {
+                padding: 0 11px;
+                font-size: 10px;
+            }
+            .folder-art .folder-tab { left: 24%; }
+            .folder-writings .folder-tab { left: 47%; }
+            .folder-web .folder-tab { right: 2%; }
+        }
+    </style>
 </head>
-<body>
-<div class="grain-layer" aria-hidden="true"></div>
-<header class="site-header" id="site-header">
-  <a class="brand" href="#/home" aria-label="UNFILED home"><span class="brand-asterisk">✳</span> UNFILED<span class="brand-period">.</span></a>
-  <nav class="top-nav" aria-label="Main navigation">
-    <a href="#/home" data-route="home">desk</a>
-    <a href="#/collections" data-route="collections">collections</a>
-    <a href="#/about" data-route="about">about</a>
-    <a href="#/contact" data-route="contact" class="nav-contact">contact <span>↗</span></a>
-  </nav>
-  <div class="header-right"><span class="header-serial">EST. MMXXVI<br>VOL. 001</span><button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button></div>
-</header>
-<div class="mobile-menu" id="mobile-menu" hidden><a href="#/home">desk</a><a href="#/collections">collections</a><a href="#/art">artworks</a><a href="#/digital">digital works</a><a href="#/writing">writing</a><a href="#/oddities">oddities</a><a href="#/about">about</a><a href="#/contact">contact</a></div>
-<main id="main-content">
-  <section class="page page-home active" id="page-home" aria-labelledby="hero-title">
-    <div class="home-layout">
-      <div class="hero-copy">
-        <p class="eyebrow">AN INDEPENDENT CREATIVE ARCHIVE <span class="eyebrow-rule"></span> NO. 001</p>
-        <div class="hero-title-wrap"><h1 id="hero-title">A cabinet<br>of <em>curious</em><br>things<span class="title-dot">.</span></h1></div>
-        <p class="hero-intro">Hello, stranger. You've found my collection of <span>art, words, websites,</span> and everything that refuses to fit neatly in a box.</p>
-        <button class="primary-cta" data-go="collections"><span class="cta-star">✳</span> RUMMAGE THROUGH MY ARCHIVE <span class="cta-arrow">↗</span></button>
+<body class="flex flex-col items-center relative">
+
+    <!-- Notifikasi Toast Non-Blocking (Pengganti alert/confirm) -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-[200] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Top Desk Bar -->
+    <header class="w-full max-w-[1160px] px-5 pt-5 pb-2 flex flex-wrap justify-between items-center gap-3 z-10 text-[#e6dfd5] font-mono-tech text-xs">
+        <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 shadow-[0_0_8px_#6ee7b7]"></span>
+            <span class="tracking-wider">ARSIP MEJA KERJA // INTERACTIVE PREVIEW</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="openUploadModal()" class="bg-[#c84b31] hover:bg-[#ad3c24] text-white font-bold px-3.5 py-2 rounded-full transition transform hover:-translate-y-0.5 cursor-pointer shadow">
+                + Unggah Karya Baru
+            </button>
+            <button onclick="exportPortfolioJSON()" class="bg-white/10 hover:bg-[#f4efe6] hover:text-[#22201e] border border-white/25 px-3.5 py-2 rounded-full transition cursor-pointer">
+                ↓ Export JSON
+            </button>
+            <button onclick="document.getElementById('importFile').click()" class="bg-white/10 hover:bg-[#f4efe6] hover:text-[#22201e] border border-white/25 px-3.5 py-2 rounded-full transition cursor-pointer">
+                ↑ Import
+            </button>
+            <input type="file" id="importFile" accept=".json" class="hidden" onchange="importPortfolioJSON(event)">
+        </div>
+    </header>
+
+    <!-- Workspace Utama -->
+    <main class="w-full max-w-[1120px] px-4 sm:px-6 pt-3 pb-16 relative z-10 flex-1 flex flex-col">
         
-      </div>
-      <div class="desk-scene" aria-label="Interactive scrapbook composition">
-        <div class="scene-caption">DESK VIEW / FIG. 01</div>
-        <div class="desk-shadow"></div>
-        <img class="archive-texture-sheet" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Crumpled_Paper.png?width=960" alt="" loading="lazy" aria-hidden="true">
-        <div class="back-envelope"><span>UNFILED ARCHIVE<br>DEPT. OF SMALL WONDERS</span><i></i></div>
-        <button class="postcard hero-postcard" data-go="about" aria-label="Open about page"><div class="postcard-dashes"></div><span class="card-number">PERSONAL FILE / 26</span><div class="card-head">WHO'S<br>BEHIND<br>THE DESK?</div></button>
-        <button class="polaroid hero-polaroid" data-art="moth" aria-label="Preview the Nocturne artwork"><span class="polaroid-photo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNzYwIj48ZGVmcz48ZmlsdGVyIGlkPSJnciI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9Ii41NSIgbnVtT2N0YXZlcz0iMyIgc2VlZD0iNyIgcmVzdWx0PSJuIi8+PGZlQ29sb3JNYXRyaXggaW49Im4iIHR5cGU9InNhdHVyYXRlIiB2YWx1ZXM9IjAiLz48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jQSB0eXBlPSJsaW5lYXIiIHNsb3BlPSIuMTciLz48L2ZlQ29tcG9uZW50VHJhbnNmZXI+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSI2MDAiIGhlaWdodD0iNzYwIiBmaWxsPSIjZTlkNWMzIi8+PHJlY3QgeD0iMzIiIHk9IjMzIiB3aWR0aD0iNTM2IiBoZWlnaHQ9IjY5NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzQyODM4IiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIzMDAiIGN5PSIyOTIiIHI9IjE5MSIgZmlsbD0iI2Q2YWNjMCIvPjxnIGZpbGw9IiMzMTM5NGUiIHN0cm9rZT0iI2YyZTJjYyIgc3Ryb2tlLXdpZHRoPSI3Ij48cGF0aCBkPSJNMjg1IDMzNyBRMTE2IDg0IDk5IDMyMCBRNzMgNTIxIDI2NyA0MzVaIi8+PHBhdGggZD0iTTMxNSAzMzcgUTQ4NCA4NCA1MDEgMzIwIFE1MjcgNTIxIDMzMyA0MzVaIi8+PHBhdGggZD0iTTI4NiAzODMgUTEzOCAzODYgMTg1IDU1NyBRMjY0IDU4MiAyOTIgNDY5WiIvPjxwYXRoIGQ9Ik0zMTQgMzgzIFE0NjIgMzg2IDQxNSA1NTcgUTMzNiA1ODIgMzA4IDQ2OVoiLz48L2c+PGcgZmlsbD0iI2RjYjQ3YiI+PGNpcmNsZSBjeD0iMTc3IiBjeT0iMzEwIiByPSI0NiIvPjxjaXJjbGUgY3g9IjQyMyIgY3k9IjMxMCIgcj0iNDYiLz48Y2lyY2xlIGN4PSIyMjIiIGN5PSI0NzYiIHI9IjIyIi8+PGNpcmNsZSBjeD0iMzc4IiBjeT0iNDc2IiByPSIyMiIvPjwvZz48cGF0aCBkPSJNMzAwIDI0NSBMMzAwIDUzMiIgc3Ryb2tlPSIjMjkyNTNjIiBzdHJva2Utd2lkdGg9IjIwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMjk3IDI1NyBRMjU5IDE3MSAyMzYgMTg2IE0zMDMgMjU3IFEzNDEgMTcxIDM2NCAxODYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzI5MjUzYyIgc3Ryb2tlLXdpZHRoPSI5Ii8+PHRleHQgeD0iMzAwIiB5PSI5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzI4MmEzNSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEiIGZvbnQtc2l6ZT0iMjkiIGxldHRlci1zcGFjaW5nPSI3Ij5OT0NUVVJORTwvdGV4dD48dGV4dCB4PSIzMDAiIHk9IjY5MyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzI4MmEzNSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjIxIiBsZXR0ZXItc3BhY2luZz0iNCI+RklFTEQgU1RVRFkgLyAwMDE8L3RleHQ+PHJlY3Qgd2lkdGg9IjYwMCIgaGVpZ2h0PSI3NjAiIGZpbHRlcj0idXJsKCNncikiIG9wYWNpdHk9Ii40OCIvPjwvc3ZnPg==" alt="An illustrated nocturnal moth"/></span><span class="polaroid-caption">a thing i made ♡</span></button>
-        <button class="big-folder" data-go="collections" aria-label="Open the collections folder"><span class="folder-tab">THE GOOD STUFF</span><span class="folder-hole"></span><span class="folder-serial">UNF / 001 — GENERAL ARCHIVE</span><strong>UNFILED<span>.</span></strong><small>ILLUSTRATIONS &nbsp; / &nbsp; CODE &nbsp; / &nbsp; WORDS<br>AND OTHER CURIOUS THINGS</small><span class="folder-stamp">OPEN<br>ME! ↗</span><span class="folder-footer">PROPERTY OF SOMEONE WHO MAKES THINGS</span></button>
-        <div class="hero-ticket"><span>ADMIT ONE</span><strong>✶</strong><span>THE CREATIVE<br>ARCHIVE</span><i>00428</i></div>
-        <div class="binderclip" aria-hidden="true"><span></span></div>
-        <img class="found-metal-clip" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Paper-clip-308487_960_720.png?width=500" alt="" aria-hidden="true" loading="lazy">
-        
-        <img class="found-postage" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/%27Penny_Black%27_postage_stamps_MET_portrait.png?width=320" alt="" aria-hidden="true" loading="lazy">
-        
-      </div>
+        <!-- Quick Folder Switcher Bar -->
+        <nav class="flex flex-wrap items-center justify-between gap-3 mb-5 px-3.5 py-2.5 bg-white/5 rounded-2xl border border-dashed border-white/15">
+            <div class="flex flex-wrap gap-2">
+                <button class="q-tab active" data-target="home" onclick="selectFolder('home')">01. Home</button>
+                <button class="q-tab" data-target="art" onclick="selectFolder('art')">02. Art <span id="badge-art">(0)</span></button>
+                <button class="q-tab" data-target="writings" onclick="selectFolder('writings')">03. Writings <span id="badge-writings">(0)</span></button>
+                <button class="q-tab" data-target="web" onclick="selectFolder('web')">04. Web <span id="badge-web">(0)</span></button>
+            </div>
+            <span class="font-mono-tech text-[11px] text-[#b8afa4]">Klik tab atau kuping folder untuk membuka berkas</span>
+        </nav>
+
+        <!-- Tumpukan 4 Folder Fisik -->
+        <div class="relative w-full mt-3" id="folderStack">
+
+            <!-- FOLDER 4 (Paling Belakang): WEB -->
+            <section class="folder-layer folder-web collapsed" id="folder-web" onclick="handleFolderClick(event, 'web')">
+                <div class="folder-tab" onclick="selectFolder('web')">
+                    <span>04 / WEB</span>
+                    <span class="text-[11px] opacity-75 bg-black/10 px-2 py-0.5 rounded-full" id="tab-count-web">0</span>
+                </div>
+                <div class="folder-body p-6 sm:p-9">
+                    <span class="inline-block border-[1.5px] border-[#22201e] px-2.5 py-1 font-mono-tech text-[11px] uppercase tracking-wider bg-white/65 -rotate-1 mb-3">
+                        DIVISI ARSIP 04 // INTERAKTIF &amp; KODE
+                    </span>
+                    <div class="flex flex-wrap justify-between items-end gap-4 border-b-[1.5px] border-dashed border-[#22201e]/25 pb-5 mb-7">
+                        <div>
+                            <h2 class="font-serif-editorial text-4xl sm:text-5xl font-bold text-[#22201e]">Web <em class="italic font-medium">&amp;</em> Proyek Digital</h2>
+                            <p class="font-mono-tech text-xs text-[#5a554f] mt-1.5">Eksperimen antarmuka, website interaktif, dan aplikasi berbasis browser.</p>
+                        </div>
+                        <button onclick="openUploadModal('web')" class="bg-[#c84b31] hover:bg-[#ad3c24] text-white font-mono-tech text-xs font-bold px-4 py-2.5 rounded-full transition cursor-pointer">
+                            + Tambah Web
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 pt-2" id="grid-web"></div>
+                </div>
+            </section>
+
+            <!-- FOLDER 3: WRITINGS -->
+            <section class="folder-layer folder-writings collapsed" id="folder-writings" onclick="handleFolderClick(event, 'writings')">
+                <div class="folder-tab" onclick="selectFolder('writings')">
+                    <span>03 / WRITINGS</span>
+                    <span class="text-[11px] opacity-75 bg-black/10 px-2 py-0.5 rounded-full" id="tab-count-writings">0</span>
+                </div>
+                <div class="folder-body p-6 sm:p-9">
+                    <span class="inline-block border-[1.5px] border-[#22201e] px-2.5 py-1 font-mono-tech text-[11px] uppercase tracking-wider bg-white/65 -rotate-1 mb-3">
+                        DIVISI ARSIP 03 // NASKAH &amp; ESAI
+                    </span>
+                    <div class="flex flex-wrap justify-between items-end gap-4 border-b-[1.5px] border-dashed border-[#22201e]/25 pb-5 mb-7">
+                        <div>
+                            <h2 class="font-serif-editorial text-4xl sm:text-5xl font-bold text-[#22201e]">Writings <em class="italic font-medium">&amp;</em> Catatan Lapangan</h2>
+                            <p class="font-mono-tech text-xs text-[#5a554f] mt-1.5">Kumpulan cerpen, esai, narasi fiksi, dan catatan reflektif.</p>
+                        </div>
+                        <button onclick="openUploadModal('writings')" class="bg-[#c84b31] hover:bg-[#ad3c24] text-white font-mono-tech text-xs font-bold px-4 py-2.5 rounded-full transition cursor-pointer">
+                            + Tambah Tulisan
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 pt-2" id="grid-writings"></div>
+                </div>
+            </section>
+
+            <!-- FOLDER 2: ART -->
+            <section class="folder-layer folder-art collapsed" id="folder-art" onclick="handleFolderClick(event, 'art')">
+                <div class="folder-tab" onclick="selectFolder('art')">
+                    <span>02 / ART</span>
+                    <span class="text-[11px] opacity-75 bg-black/10 px-2 py-0.5 rounded-full" id="tab-count-art">0</span>
+                </div>
+                <div class="folder-body p-6 sm:p-9">
+                    <span class="inline-block border-[1.5px] border-[#22201e] px-2.5 py-1 font-mono-tech text-[11px] uppercase tracking-wider bg-white/65 -rotate-1 mb-3">
+                        DIVISI ARSIP 02 // VISUAL &amp; ILUSTRASI
+                    </span>
+                    <div class="flex flex-wrap justify-between items-end gap-4 border-b-[1.5px] border-dashed border-[#22201e]/25 pb-5 mb-7">
+                        <div>
+                            <h2 class="font-serif-editorial text-4xl sm:text-5xl font-bold text-[#22201e]">Art <em class="italic font-medium">&amp;</em> Karya Visual</h2>
+                            <p class="font-mono-tech text-xs text-[#5a554f] mt-1.5">Ilustrasi karakter, desain grafis, kolase editorial, dan studi warna.</p>
+                        </div>
+                        <button onclick="openUploadModal('art')" class="bg-[#c84b31] hover:bg-[#ad3c24] text-white font-mono-tech text-xs font-bold px-4 py-2.5 rounded-full transition cursor-pointer">
+                            + Tambah Art
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 pt-2" id="grid-art"></div>
+                </div>
+            </section>
+
+            <!-- FOLDER 1 (Paling Depan / Bawah): HOME -->
+            <section class="folder-layer folder-home active" id="folder-home" onclick="handleFolderClick(event, 'home')">
+                <!-- Klip Penjepit Kertas (Binder Clip) Dekoratif -->
+                <svg class="absolute -top-4 right-7 sm:right-10 w-9 h-11 z-20 pointer-events-none drop-shadow-md" viewBox="0 0 40 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 14V6C14 3.79086 15.7909 2 18 2H22C24.2091 2 26 3.79086 26 6V14" stroke="#b5b5b5" stroke-width="2.5"/>
+                    <path d="M8 14H32L35 44C35.2 46.5 33.2 48 30.8 48H9.2C6.8 48 4.8 46.5 5 44L8 14Z" fill="#232220"/>
+                    <rect x="6" y="42" width="28" height="6" rx="2" fill="#3a3835"/>
+                </svg>
+
+                <div class="folder-tab" onclick="selectFolder('home')">
+                    <span>01 / HOME</span>
+                </div>
+
+                <div class="folder-body p-6 sm:p-9">
+                    <span class="inline-block border-[1.5px] border-[#22201e] px-2.5 py-1 font-mono-tech text-[11px] uppercase tracking-wider bg-white/65 -rotate-1 mb-3">
+                        ARSIP PERSONAL // MEJA PORTOFOLIO 2026
+                    </span>
+                    <div class="flex flex-wrap justify-between items-end gap-4 border-b-[1.5px] border-dashed border-[#22201e]/25 pb-5 mb-7">
+                        <div>
+                            <h1 class="font-serif-editorial text-4xl sm:text-5xl font-bold text-[#22201e]">Curated <em class="italic font-medium">Messy</em> Desk</h1>
+                            <p class="font-mono-tech text-xs text-[#5a554f] mt-1.5">Ruang arsip karya visual, tulisan, dan eksplorasi web dalam satu meja kerja.</p>
+                        </div>
+                        <button onclick="openEditProfileModal()" class="bg-[#22201e] hover:bg-black text-white font-mono-tech text-xs px-4 py-2.5 rounded-full transition cursor-pointer">
+                            ✎ Edit Profil Home
+                        </button>
+                    </div>
+
+                    <!-- Tata Letak Scrapbook di Folder Home -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        <!-- Kartu Bio + Washi Tape -->
+                        <div class="lg:col-span-7 bg-white p-6 sm:p-7 rounded-md shadow-md relative -rotate-[0.6deg] border border-black/5">
+                            <div class="washi-tape"></div>
+                            <p class="font-handwriting text-3xl text-[#c84b31] leading-snug mb-3" id="home-tagline">
+                                "Selamat datang di meja kerjaku — silakan buka folder mana saja."
+                            </p>
+                            <p class="text-[15px] leading-relaxed text-[#35322e] mb-5" id="home-bio">
+                                Halo! Ini adalah ruang arsip digital tempat semua proyek kreatifku disimpan rapi di dalam map. 
+                                Kamu bisa membuka folder <strong>Art</strong> untuk melihat ilustrasi &amp; detail proses pembuatannya, 
+                                membaca naskah di folder <strong>Writings</strong>, atau mengeksplorasi proyek kode di folder <strong>Web</strong>.
+                            </p>
+                            <div class="border-t border-[#e5e0d8] pt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div onclick="selectFolder('art')" class="bg-[#faf8f4] hover:bg-[#22201e] hover:text-white border border-[#e5dfd5] px-3.5 py-2.5 rounded-lg cursor-pointer transition flex justify-between items-center font-mono-tech text-xs">
+                                    <span>02. FOLDER ART</span>
+                                    <span id="home-count-art">0 karya →</span>
+                                </div>
+                                <div onclick="selectFolder('writings')" class="bg-[#faf8f4] hover:bg-[#22201e] hover:text-white border border-[#e5dfd5] px-3.5 py-2.5 rounded-lg cursor-pointer transition flex justify-between items-center font-mono-tech text-xs">
+                                    <span>03. FOLDER WRITINGS</span>
+                                    <span id="home-count-writings">0 karya →</span>
+                                </div>
+                                <div onclick="selectFolder('web')" class="bg-[#faf8f4] hover:bg-[#22201e] hover:text-white border border-[#e5dfd5] px-3.5 py-2.5 rounded-lg cursor-pointer transition flex justify-between items-center font-mono-tech text-xs">
+                                    <span>04. FOLDER WEB</span>
+                                    <span id="home-count-web">0 karya →</span>
+                                </div>
+                                <div onclick="openUploadModal()" class="bg-[#faf8f4] hover:bg-[#c84b31] hover:text-white border border-[#e5dfd5] px-3.5 py-2.5 rounded-lg cursor-pointer transition flex justify-between items-center font-mono-tech text-xs font-bold">
+                                    <span>+ UNGGAH KARYA</span>
+                                    <span>TAMBAH →</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Polaroid & Tag Barcode -->
+                        <div class="lg:col-span-5 flex flex-col gap-5">
+                            <div class="bg-white p-3.5 pb-7 rounded shadow-lg rotate-2 hover:rotate-0 hover:scale-[1.02] transition duration-300 border border-black/5">
+                                <img id="home-photo" class="w-full h-52 object-cover bg-[#e9e4da] rounded-sm" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23d7e3e8'/%3E%3Ccircle cx='300' cy='175' r='70' fill='%23c84b31' opacity='0.88'/%3E%3Cpath d='M160 315 Q300 215 440 315' stroke='%2322201e' stroke-width='4' fill='none'/%3E%3Ctext x='300' y='362' font-family='monospace' font-size='15' text-anchor='middle' fill='%2322201e'%3ESTUDIO DESK SNAPSHOT%3C/text%3E%3C/svg%3E" alt="Foto Meja Studio">
+                                <p class="font-handwriting text-2xl text-center mt-2.5 text-[#22201e]" id="home-polaroid-caption">Arsip Kreatif &amp; Catatan Meja</p>
+                            </div>
+
+                            <div class="bg-white px-4 py-3 rounded shadow -rotate-1 flex justify-between items-center font-mono-tech text-[11px] border border-black/5">
+                                <div>
+                                    <strong id="home-owner-name">CREATOR STUDIO // ARSIP</strong><br>
+                                    <span class="text-[#6e685f]">PENYIMPANAN LOKAL AKTIF</span>
+                                </div>
+                                <div class="barcode-lines"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODAL 1: DETAIL INSPEKSI KARYA -->
+    <div class="fixed inset-0 bg-[#12100e]/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 overflow-y-auto" id="inspectModal" onclick="closeModalOnBackdrop(event, 'inspectModal')">
+        <div class="bg-[#faf7f0] w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl relative p-6 sm:p-8 border border-white/70 animate-pop">
+            <button onclick="closeModal('inspectModal')" class="absolute top-4 right-5 bg-[#22201e] hover:bg-[#c84b31] text-white w-9 h-9 rounded-full font-mono-tech text-lg flex items-center justify-center transition cursor-pointer">&times;</button>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-7 mt-3" id="inspectContent"></div>
+        </div>
     </div>
-    <div class="home-bottom-bar"><span>CREATIVELY SCATTERED, LOVINGLY COLLECTED.</span><span class="scroll-indicator">SCROLL? NO, CLICK AROUND INSTEAD <span>↗</span></span><span>© UNFILED. 2026</span></div>
-  </section>
 
-  <section class="page page-collections" id="page-collections" aria-labelledby="collections-title">
-    <div class="inner-page-head collections-head"><div><p class="eyebrow dark-eyebrow">FILE CABINET / INDEX 00</p><h2 id="collections-title">The <em>collections.</em></h2><p class="head-description">Four drawers, a hundred little fixations. Pick a folder and see what falls out.</p></div><div class="head-stamp">HAND SORTED<br>WITH LOVE<br><span>✳</span></div></div>
-    <div class="folder-grid">
-      <button class="folder-card folder-card-pink" data-go="art"><span class="folder-card-tab">DRAWER 01</span><div class="folder-art collage-art"><div class="mini-paper pink-paper"></div><div class="mini-photo"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNzYwIj48ZGVmcz48ZmlsdGVyIGlkPSJnciI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9Ii41NSIgbnVtT2N0YXZlcz0iMyIgc2VlZD0iNyIgcmVzdWx0PSJuIi8+PGZlQ29sb3JNYXRyaXggaW49Im4iIHR5cGU9InNhdHVyYXRlIiB2YWx1ZXM9IjAiLz48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jQSB0eXBlPSJsaW5lYXIiIHNsb3BlPSIuMTciLz48L2ZlQ29tcG9uZW50VHJhbnNmZXI+PC9maWx0ZXI+PC9kZWZzPjxyZWN0IHdpZHRoPSI2MDAiIGhlaWdodD0iNzYwIiBmaWxsPSIjNTc2MzRjIi8+PHJlY3QgeD0iNDYiIHk9IjQzIiB3aWR0aD0iNTA4IiBoZWlnaHQ9IjY3NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZjFkNmI2IiBzdHJva2Utd2lkdGg9IjIiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMDAgMzQ1KSIgZmlsbD0iI2VjOWY5NSIgc3Ryb2tlPSIjNTIyZjNlIiBzdHJva2Utd2lkdGg9IjUiPjxlbGxpcHNlIGN4PSIwIiBjeT0iLTEzNyIgcng9IjkxIiByeT0iMTYyIiB0cmFuc2Zvcm09InJvdGF0ZSgwKSIvPjxlbGxpcHNlIGN4PSIwIiBjeT0iLTEzNyIgcng9IjkxIiByeT0iMTYyIiB0cmFuc2Zvcm09InJvdGF0ZSg0NSkiLz48ZWxsaXBzZSBjeD0iMCIgY3k9Ii0xMzciIHJ4PSI5MSIgcnk9IjE2MiIgdHJhbnNmb3JtPSJyb3RhdGUoOTApIi8+PGVsbGlwc2UgY3g9IjAiIGN5PSItMTM3IiByeD0iOTEiIHJ5PSIxNjIiIHRyYW5zZm9ybT0icm90YXRlKDEzNSkiLz48ZWxsaXBzZSBjeD0iMCIgY3k9Ii0xMzciIHJ4PSI5MSIgcnk9IjE2MiIgdHJhbnNmb3JtPSJyb3RhdGUoMTgwKSIvPjxlbGxpcHNlIGN4PSIwIiBjeT0iLTEzNyIgcng9IjkxIiByeT0iMTYyIiB0cmFuc2Zvcm09InJvdGF0ZSgyMjUpIi8+PGVsbGlwc2UgY3g9IjAiIGN5PSItMTM3IiByeD0iOTEiIHJ5PSIxNjIiIHRyYW5zZm9ybT0icm90YXRlKDI3MCkiLz48ZWxsaXBzZSBjeD0iMCIgY3k9Ii0xMzciIHJ4PSI5MSIgcnk9IjE2MiIgdHJhbnNmb3JtPSJyb3RhdGUoMzE1KSIvPjxjaXJjbGUgcj0iODQiIGZpbGw9IiNlN2MxNzgiIHN0cm9rZT0iIzU5NGQzNiIgc3Ryb2tlLXdpZHRoPSIxMCIvPjxjaXJjbGUgcj0iNDQiIGZpbGw9IiM1ZjRiMzkiIHN0cm9rZT0ibm9uZSIvPjwvZz48cGF0aCBkPSJNMzAwIDQ1NSBRMzQwIDY1MCAzMDkgNzE3IiBzdHJva2U9IiNlZmRiYjYiIHN0cm9rZS13aWR0aD0iMTIiIGZpbGw9Im5vbmUiLz48dGV4dCB4PSIzMDAiIHk9Ijk2IiBmaWxsPSIjZjdlOGNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSIgZm9udC1zaXplPSI0MyIgbGV0dGVyLXNwYWNpbmc9IjQiPlBBUEVSIEdBUkRFTjwvdGV4dD48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9Ijc2MCIgZmlsdGVyPSJ1cmwoI2dyKSIgb3BhY2l0eT0iLjQ4Ii8+PC9zdmc+" alt=""/></div><img class="folder-stamp-real" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/%27Penny_Black%27_postage_stamps_MET_portrait.png?width=320" alt="" aria-hidden="true" loading="lazy"><div class="tiny-star">✷</div><span class="tape tape-cream"></span></div><div class="folder-card-meta"><span>001 / VISUAL MATTERS</span><span>↗</span></div><strong>artworks</strong><small>illustrations, sketches & everything in between</small></button>
-      <button class="folder-card folder-card-blue" data-go="digital"><span class="folder-card-tab">DRAWER 02</span><div class="folder-art digital-art"><div class="mini-browser"><div class="browser-dots"><i></i><i></i><i></i></div><div class="browser-inner"><span>HELLO<br>WORLD<span class="accent-dot">.</span></span><div class="browser-swatches"><b></b><b></b><b></b></div></div></div><div class="mini-tag">CSS / JS / AND MAGIC</div><span class="tape tape-cream"></span></div><div class="folder-card-meta"><span>002 / PIXEL MATTERS</span><span>↗</span></div><strong>digital works</strong><small>websites, interfaces & interactive worlds</small></button>
-      <button class="folder-card folder-card-yellow" data-go="writing"><span class="folder-card-tab">DRAWER 03</span><div class="folder-art writing-art"><div class="mini-letter"><span>DEAR READER,</span><b>some things are<br>better left<br>in ink.</b><i>yours, always.</i></div><span class="writing-flower">✳</span><span class="tape tape-pink"></span></div><div class="folder-card-meta"><span>003 / WORD MATTERS</span><span>↗</span></div><strong>writings</strong><small>poetry, prose & the things left unsaid</small></button>
-      <button class="folder-card folder-card-orange" data-go="oddities"><span class="folder-card-tab">DRAWER 04</span><div class="folder-art oddities-art"><div class="mini-dossier"><span>TOP SECRET<br>(NOT REALLY)</span><b>???</b><small>CASE NO. X-04</small></div><div class="mini-sticker">& OTHER<br>ODDITIES</div><span class="tape tape-blue"></span></div><div class="folder-card-meta"><span>004 / OTHER MATTERS</span><span>↗</span></div><strong>oddities</strong><small>worldbuilding, experiments & loose ends</small></button>
+    <!-- MODAL 2: UNGGAH KARYA BARU -->
+    <div class="fixed inset-0 bg-[#12100e]/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 overflow-y-auto" id="uploadModal" onclick="closeModalOnBackdrop(event, 'uploadModal')">
+        <div class="bg-[#faf7f0] w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl relative p-6 sm:p-8 border border-white/70 animate-pop">
+            <button onclick="closeModal('uploadModal')" class="absolute top-4 right-5 bg-[#22201e] hover:bg-[#c84b31] text-white w-9 h-9 rounded-full font-mono-tech text-lg flex items-center justify-center transition cursor-pointer">&times;</button>
+            <span class="inline-block border border-[#22201e] px-2.5 py-0.5 font-mono-tech text-[11px] uppercase bg-white/70 mb-2">ENTRI ARSIP BARU</span>
+            <h2 class="font-serif-editorial text-3xl font-bold">Unggah Karya ke Folder</h2>
+            <p class="text-xs text-[#5a554f] mt-1">Karya otomatis tersimpan di penyimpanan browser dan dapat di-export ke JSON kapan saja.</p>
+
+            <form id="uploadForm" onsubmit="handleSaveWork(event)" class="mt-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label for="workCategory" class="font-mono-tech text-xs font-bold uppercase">Pilih Folder</label>
+                        <select id="workCategory" required onchange="toggleFormFields()" class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                            <option value="art">02. Art (Ilustrasi / Desain)</option>
+                            <option value="writings">03. Writings (Tulisan / Cerita)</option>
+                            <option value="web">04. Web (Website / Proyek Kode)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="workTitle" class="font-mono-tech text-xs font-bold uppercase">Judul Karya *</label>
+                        <input type="text" id="workTitle" placeholder="Misal: Studi Karakter Athena" required class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="workDuration" class="font-mono-tech text-xs font-bold uppercase">Lama Pembuatan *</label>
+                        <input type="text" id="workDuration" placeholder="Misal: 6 Jam / 3 Hari" required class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="workTools" class="font-mono-tech text-xs font-bold uppercase">Aplikasi / Tools *</label>
+                        <input type="text" id="workTools" placeholder="Misal: Clip Studio Paint, Canva" required class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="workDate" class="font-mono-tech text-xs font-bold uppercase">Tanggal / Tahun</label>
+                        <input type="text" id="workDate" placeholder="Misal: Nov 2026" class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                    </div>
+
+                    <div class="flex flex-col gap-1.5 hidden" id="groupLink">
+                        <label for="workLink" class="font-mono-tech text-xs font-bold uppercase">Link Website / Demo</label>
+                        <input type="url" id="workLink" placeholder="https://proyek-kamu.vercel.app" class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                    </div>
+
+                    <div class="sm:col-span-2 flex flex-col gap-1.5" id="groupImageUpload">
+                        <label class="font-mono-tech text-xs font-bold uppercase">Unggah Gambar Karya atau URL Gambar</label>
+                        <div onclick="document.getElementById('workImageFile').click()" class="border-2 border-dashed border-[#b9b0a2] hover:border-[#c84b31] bg-white hover:bg-[#fffaf8] p-4 rounded-xl text-center cursor-pointer transition">
+                            <span class="font-mono-tech text-xs">📁 Klik untuk memilih file gambar dari perangkat</span>
+                            <input type="file" id="workImageFile" accept="image/*" class="hidden" onchange="previewUploadedImage(event)">
+                            <img id="uploadPreviewImg" class="max-h-28 mx-auto mt-2.5 rounded hidden" alt="Pratinjau">
+                        </div>
+                        <input type="url" id="workImageUrl" placeholder="Atau tempel URL gambar (https://...)" class="px-3 py-2 border border-[#d5cec2] rounded-lg bg-white text-sm mt-1">
+                    </div>
+
+                    <div class="sm:col-span-2 hidden flex-col gap-1.5" id="groupWritingBody">
+                        <label for="workFullText" class="font-mono-tech text-xs font-bold uppercase">Isi Tulisan Lengkap *</label>
+                        <textarea id="workFullText" rows="6" placeholder="Tulis atau tempel naskah cerita, puisi, atau esai di sini..." class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm"></textarea>
+                    </div>
+
+                    <div class="sm:col-span-2 flex flex-col gap-1.5">
+                        <label for="workDescription" class="font-mono-tech text-xs font-bold uppercase">Catatan / Deskripsi Singkat Karya</label>
+                        <textarea id="workDescription" rows="3" placeholder="Ceritakan konsep, inspirasi, atau detail proses di balik karya ini..." class="px-3 py-2.5 border border-[#d5cec2] rounded-lg bg-white text-sm"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-2.5">
+                    <button type="button" onclick="closeModal('uploadModal')" class="px-4 py-2 rounded-full border border-[#ccc] font-mono-tech text-xs cursor-pointer hover:bg-black/5">Batal</button>
+                    <button type="submit" class="bg-[#c84b31] hover:bg-[#ad3c24] text-white font-mono-tech text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">Simpan ke Folder</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="collection-footer"><span>✳</span> PLEASE RETURN ALL FOUND CURIOSITIES TO THEIR RESPECTIVE FOLDERS. OR DON'T.</div>
-  </section>
 
-  <section class="page page-art" id="page-art" aria-labelledby="art-title">
-    <div class="collection-subhead"><button class="back-index" data-go="collections">← BACK TO THE CABINET</button><span>DRAWER 01 OF 04 / VISUAL ARCHIVE</span></div>
-    <div class="art-header"><div><span class="section-kicker">SKETCHBOOK PAGES, NO. 001—006</span><h2 id="art-title">Made by <em>hand.</em><span class="pink-asterisk">✳</span></h2><p>Little studies of color, character, and the things that keep me awake.</p></div><div class="paint-sticker">ART IS<br>EVERYWHERE<br>✿</div></div>
-    <div class="filter-row" role="group" aria-label="Artwork filter"><button class="filter-btn active" data-filter="all">ALL PIECES <span>06</span></button><button class="filter-btn" data-filter="illustration">ILLUSTRATION</button><button class="filter-btn" data-filter="study">STUDIES</button><button class="filter-btn" data-filter="poster">POSTERS</button><span class="filter-side">SORTED: MOST CURIOUS FIRST ↘</span></div>
-    <div class="art-grid" id="art-grid"></div>
-    <div class="page-bottom-note">✳ THIS GALLERY CONTAINS SAMPLE ARTWORK MADE FOR THE PROTOTYPE.</div>
-  </section>
+    <!-- MODAL 3: EDIT PROFIL HOME -->
+    <div class="fixed inset-0 bg-[#12100e]/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 overflow-y-auto" id="profileModal" onclick="closeModalOnBackdrop(event, 'profileModal')">
+        <div class="bg-[#faf7f0] w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl relative p-6 sm:p-8 border border-white/70 animate-pop">
+            <button onclick="closeModal('profileModal')" class="absolute top-4 right-5 bg-[#22201e] hover:bg-[#c84b31] text-white w-9 h-9 rounded-full font-mono-tech text-lg flex items-center justify-center transition cursor-pointer">&times;</button>
+            <span class="inline-block border border-[#22201e] px-2.5 py-0.5 font-mono-tech text-[11px] uppercase bg-white/70 mb-2">KUSTOMISASI FOLDER HOME</span>
+            <h2 class="font-serif-editorial text-3xl font-bold">Edit Profil Meja Kerja</h2>
+            <form onsubmit="saveProfileChanges(event)" class="mt-4 flex flex-col gap-3.5">
+                <div class="flex flex-col gap-1">
+                    <label class="font-mono-tech text-xs font-bold uppercase">Nama / Label Pemilik</label>
+                    <input type="text" id="editOwnerName" required class="px-3 py-2 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="font-mono-tech text-xs font-bold uppercase">Tagline Tulisan Tangan</label>
+                    <input type="text" id="editTagline" required class="px-3 py-2 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="font-mono-tech text-xs font-bold uppercase">Bio Singkat</label>
+                    <textarea id="editBio" rows="4" required class="px-3 py-2 border border-[#d5cec2] rounded-lg bg-white text-sm"></textarea>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="font-mono-tech text-xs font-bold uppercase">Caption Polaroid</label>
+                    <input type="text" id="editCaption" required class="px-3 py-2 border border-[#d5cec2] rounded-lg bg-white text-sm">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="font-mono-tech text-xs font-bold uppercase">Ganti Foto Polaroid Home (Opsional)</label>
+                    <input type="file" id="editHomePhotoFile" accept="image/*" class="text-xs font-mono-tech">
+                </div>
+                <button type="submit" class="self-end mt-2 bg-[#c84b31] hover:bg-[#ad3c24] text-white font-mono-tech text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">Simpan Profil</button>
+            </form>
+        </div>
+    </div>
 
-  <section class="page page-digital" id="page-digital" aria-labelledby="digital-title">
-    <div class="collection-subhead"><button class="back-index" data-go="collections">← BACK TO THE CABINET</button><span>DRAWER 02 OF 04 / DIGITAL ARCHIVE</span></div>
-    <div class="digital-heading"><div class="digital-heading-top">00100110 / INTERACTIVE EXPERIMENTS / WEB PROJECTS</div><h2 id="digital-title">Things that <em>work</em><span class="digital-period">.</span></h2><p>A collection of worlds built one pixel, one late night, and one stubborn bug at a time.</p><span class="digital-badge">DESIGNED / DEVELOPED / DOCUMENTED</span></div>
-    <div class="project-list" id="project-list"></div>
-    <div class="project-footer">PROTOTYPE CASE FILES <span>✳</span> LIVE LINKS TO BE ADDED WHEN THE ARCHIVE IS READY.</div>
-  </section>
+    <script>
+        // Ilustrasi vektor bawaan agar langsung siap pratinjau tanpa ketergantungan tautan luar
+        const sampleArt1 = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+                <rect width="800" height="600" fill="#1e242b"/>
+                <circle cx="400" cy="270" r="145" fill="#e3d6b8" opacity="0.95"/>
+                <path d="M330 250 L400 150 L470 250 Z" fill="#c84b31"/>
+                <circle cx="370" cy="260" r="14" fill="#1e242b"/>
+                <circle cx="430" cy="260" r="14" fill="#1e242b"/>
+                <path d="M385 285 L400 305 L415 285 Z" fill="#c84b31"/>
+                <text x="400" y="490" font-family="Georgia, serif" font-size="28" fill="#f6f2e9" text-anchor="middle" letter-spacing="4">ATHENA // OWL EMBLEM</text>
+                <text x="400" y="525" font-family="monospace" font-size="14" fill="#9fb1bc" text-anchor="middle">STUDI KARAKTER &amp; MINIMALIS</text>
+            </svg>
+        `);
 
-  <section class="page page-writing" id="page-writing" aria-labelledby="writing-title">
-    <div class="collection-subhead"><button class="back-index" data-go="collections">← BACK TO THE CABINET</button><span>DRAWER 03 OF 04 / LITERARY ARCHIVE</span></div>
-    <div class="writing-head"><span class="section-kicker">LETTERS FROM THE OTHER SIDE OF THE DESK</span><h2 id="writing-title">Ink <em>stains.</em></h2><p>For every thought that refused to stay inside my head.</p><div class="writing-mark">“</div></div>
-    <div class="writing-list" id="writing-list"></div>
-    <div class="writing-bottom">ALL EXCERPTS ARE PLACEHOLDERS WRITTEN FOR THIS PROTOTYPE. &nbsp; ☼</div>
-  </section>
+        const sampleArt2 = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+                <rect width="800" height="600" fill="#f3e9dc"/>
+                <rect x="80" y="70" width="280" height="360" fill="#d7e3e8" stroke="#222" stroke-width="2"/>
+                <rect x="390" y="130" width="320" height="390" fill="#f3c6c0" stroke="#222" stroke-width="2"/>
+                <circle cx="220" cy="230" r="65" fill="#c84b31"/>
+                <text x="550" y="310" font-family="Georgia, serif" font-style="italic" font-size="42" fill="#222" text-anchor="middle">Editorial</text>
+                <text x="550" y="355" font-family="Georgia, serif" font-size="36" fill="#222" text-anchor="middle">Kolase 02</text>
+            </svg>
+        `);
 
-  <section class="page page-oddities" id="page-oddities" aria-labelledby="oddities-title">
-    <div class="collection-subhead"><button class="back-index" data-go="collections">← BACK TO THE CABINET</button><span>DRAWER 04 OF 04 / UNCLASSIFIED</span></div>
-    <div class="odd-head"><p class="section-kicker">ODDS, ENDS & OTHER UNNAMED CREATURES</p><h2 id="oddities-title">The <em>odd drawer.</em></h2><p>Loose pages from imagined universes. None of these fit anywhere else, so they live here.</p></div>
-    <div class="odd-board"><span class="odd-board-note">A FEW UNFINISHED UNIVERSES...</span><button class="odd-card odd-card-one" data-odd="0"><span>WORLD FILE / 01</span><strong>C.O.R.E.</strong><small>An anomaly field notebook</small><i>OPEN CASE ↗</i></button><button class="odd-card odd-card-two" data-odd="1"><span>WORLD FILE / 02</span><strong>SHADOW<br>ECONOMY</strong><small>Private notes from a larger world</small><i>OPEN CASE ↗</i></button><button class="odd-card odd-card-three" data-odd="2"><span>WORLD FILE / 03</span><strong>THE<br>UNWRITTEN</strong><small>Unfinished characters & miscellany</small><i>OPEN CASE ↗</i></button><div class="odd-clip"></div><span class="odd-handwritten">please don't<br>organize these! ↗</span><span class="odd-deco">✳</span></div>
-  </section>
+        const sampleWeb1 = "data:image/svg+xml;utf8," + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+                <rect width="800" height="600" fill="#24211e"/>
+                <rect x="100" y="80" width="600" height="440" rx="16" fill="#f6f2e9"/>
+                <rect x="100" y="80" width="600" height="42" rx="16" fill="#e3d6b8"/>
+                <circle cx="130" cy="101" r="7" fill="#c84b31"/>
+                <circle cx="152" cy="101" r="7" fill="#e6a15c"/>
+                <circle cx="174" cy="101" r="7" fill="#6b9e78"/>
+                <text x="400" y="280" font-family="Georgia, serif" font-size="36" fill="#222" text-anchor="middle">What's Inside My Phone</text>
+                <text x="400" y="325" font-family="monospace" font-size="16" fill="#5a554f" text-anchor="middle">Eksperimen Web Interaktif Single-File</text>
+            </svg>
+        `);
 
-  <section class="page page-about" id="page-about" aria-labelledby="about-title">
-    <div class="collection-subhead"><button class="back-index" data-go="home">← RETURN TO THE DESK</button><span>PERSONNEL FILE / AUTHORIZED VIEWING</span></div>
-    <div class="about-wrap"><div class="about-left"><span class="section-kicker">PERSONAL DOSSIER / DOCUMENT 026</span><h2 id="about-title">The person<br>behind <em>the mess.</em></h2><p>Part maker, part daydreamer, full-time collector of ideas that begin with “what if?”</p><div class="about-features"><span>✳ ILLUSTRATION</span><span>✳ INTERACTIVE WEB</span><span>✳ WORDS & STORIES</span><span>✳ CREATIVE WORLDS</span></div><button class="text-link" data-go="contact">LEAVE SOMETHING ON MY DESK ↗</button></div><div class="about-board"><div class="about-note"><span>PERSONAL FILE / 001</span><b>Hello there!</b><p>This is an editable space for the real story behind the creator, the tiny interests, and the big projects.</p><span class="about-signoff">with love, the maker ✿</span></div><button class="id-badge" id="id-badge" aria-label="Flip the identity card"><div class="id-front"><span class="id-top">ARCHIVE PERSONNEL / ID 001</span><div class="id-avatar">✳</div><b>THE MAKER</b><span>ILLUSTRATOR / WRITER / BUILDER</span><div class="barcode"></div><small>CLICK TO FLIP CARD ↻</small></div><div class="id-back"><span>IF FOUND, PLEASE RETURN TO</span><b>THE DESK.</b><p>Usually somewhere between a sketchbook and a browser tab.</p><span>✳ KEEP MAKING THINGS.</span></div></button><div class="about-tape"></div></div></div>
-  </section>
+        const defaultData = {
+            profile: {
+                ownerName: "CREATOR STUDIO // ARSIP",
+                tagline: '"Selamat datang di meja kerjaku — silakan buka folder mana saja."',
+                bio: "Halo! Ini adalah ruang arsip digital tempat semua proyek kreatifku disimpan rapi di dalam map. Kamu bisa membuka folder Art untuk melihat ilustrasi & detail proses pembuatannya, membaca naskah di folder Writings, atau mengeksplorasi proyek kode di folder Web.",
+                caption: "Arsip Kreatif & Catatan Meja",
+                photo: ""
+            },
+            works: [
+                {
+                    id: "art-1",
+                    category: "art",
+                    title: "Athena & Minimalist Owl Study",
+                    duration: "8 Jam 30 Menit",
+                    tools: "Clip Studio Paint & Illustrator",
+                    date: "Nov 2026",
+                    image: sampleArt1,
+                    description: "Eksplorasi desain karakter dan emblem burung hantu bergaya minimalis-editorial. Fokus pada siluet tajam dan kontras palet warna hangat-gelap."
+                },
+                {
+                    id: "art-2",
+                    category: "art",
+                    title: "Swiss Editorial Poster Collage",
+                    duration: "3 Jam",
+                    tools: "Canva & Figma",
+                    date: "Okt 2026",
+                    image: sampleArt2,
+                    description: "Komposisi tata letak poster bergaya Swiss grid dengan kombinasi tipografi serif klasik dan tekstur kertas arsip."
+                },
+                {
+                    id: "writings-1",
+                    category: "writings",
+                    title: "Siaran Malam di Gema Mahasiswa",
+                    duration: "4 Hari",
+                    tools: "Google Docs",
+                    date: "Nov 2026",
+                    fullText: "Lampu merah bertuliskan ON AIR di atas pintu studio kembali menyala tepat pukul sebelas malam.\n\nDi balik meja konsol yang dipenuhi catatan naskah dan cangkir kopi yang mulai dingin, Rasiandika memutar piringan lagu pembuka. Kota di luar jendela kampus tampak lengang, namun frekuensi radio selalu punya cara aneh untuk mempertemukan orang-orang yang belum siap tidur.\n\n\"Selamat malam pendengar setia Gema Mahasiswa,\" suaranya mengalir tenang menyusuri mikrofon. \"Malam ini kita tidak sedang membahas teori besar—kita hanya sedang mengarsipkan hal-hal kecil yang sering terlewat di siang hari.\"",
+                    description: "Potongan bab pembuka cerita realis-satiris berlatar ruang siaran radio kampus."
+                },
+                {
+                    id: "web-1",
+                    category: "web",
+                    title: "What's Inside My Phone — Interactive",
+                    duration: "2 Hari",
+                    tools: "HTML5, CSS3, Vanilla JS, Vercel",
+                    date: "Okt 2026",
+                    image: sampleWeb1,
+                    link: "https://vercel.com",
+                    description: "Proyek web interaktif single-file yang mensimulasikan isi ponsel digital lengkap dengan pemutar musik, catatan pribadi, dan galeri mini."
+                }
+            ]
+        };
 
-  <section class="page page-contact" id="page-contact" aria-labelledby="contact-title">
-    <div class="collection-subhead"><button class="back-index" data-go="home">← RETURN TO THE DESK</button><span>OUTGOING MAIL / POSTCARD DESK</span></div>
-    <div class="contact-head"><span class="section-kicker">NO. 007 / PUT IT IN WRITING</span><h2 id="contact-title">Drop me <em>a note.</em></h2><p>A little hello, a collaboration idea, or the beginning of something lovely.</p></div>
-    <div class="contact-form-wrap"><div class="postcard-visual"><span class="postcard-postmark">UNFILED. POST <br> NOV 2026 ◌</span><div class="postcard-stamp">✳<span>26¢</span></div><p>Dear<br><em>stranger,</em></p><div class="postcard-horizontal"></div><span>BE KIND. WRITE OFTEN.<br>COLLECT LITTLE THINGS.</span><div class="postcard-stripes"></div></div><form id="postcard-form" class="postcard-form"><div class="form-title">FILL IN YOUR POSTCARD <span>↙</span></div><label for="sender">YOUR NAME <span>*</span></label><input type="text" id="sender" name="sender" placeholder="Someone curious" required maxlength="80"><label for="sender-email">YOUR EMAIL <span>*</span></label><input type="email" id="sender-email" name="email" placeholder="you@somewhere.com" required maxlength="160"><label for="message">YOUR LITTLE NOTE <span>*</span></label><textarea id="message" name="message" placeholder="Dear maker, ..." required maxlength="1000" rows="4"></textarea><p class="form-disclaimer">PROTOTYPE MODE: no message will be sent. You can preview and copy your postcard.</p><button type="submit" class="primary-cta contact-submit">PREVIEW MY POSTCARD <span>↗</span></button></form></div>
-  </section>
-</main>
-<div class="modal-backdrop" id="modal-backdrop" hidden><div class="modal-surface" id="modal-surface" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button class="modal-close" id="modal-close" aria-label="Close dialog">✕</button><div id="modal-content"></div></div></div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<footer class="global-footer"><div><span>✳ UNFILED.</span><small>curiously made. carefully collected.</small></div><button id="back-to-top">BACK TO TOP ↑</button><span>AN INDEPENDENT CREATIVE ARCHIVE © 2026</span></footer>
-<details class="material-credits"><summary>IMAGE MATERIALS / CREDITS <span>↗</span></summary><p>Photographic paper scans and transparent decorative PNG assets are now sourced from Wikimedia Commons, not illustrated with pure CSS. Files load from the original media host for this prototype.</p><ul><li><a href="https://commons.wikimedia.org/wiki/File:Old_Paper_texture.jpg" target="_blank" rel="noopener">Old Paper texture</a> · Arka09185 · CC0</li><li><a href="https://commons.wikimedia.org/wiki/File:Crumpled_Paper.png" target="_blank" rel="noopener">Crumpled Paper</a> · Epicpanda65 · CC0</li><li><a href="https://commons.wikimedia.org/wiki/File:%27Penny_Black%27_postage_stamps_MET_portrait.png" target="_blank" rel="noopener">Historic postage stamp</a> · The Metropolitan Museum of Art · CC0</li><li><a href="https://commons.wikimedia.org/wiki/File:Paper-clip-308487_960_720.png" target="_blank" rel="noopener">Paper clip image</a> · Agraphe · CC BY-SA 4.0 (cropped/scaled)</li><li><a href="https://commons.wikimedia.org/wiki/File:Masking-tape.png" target="_blank" rel="noopener">Washi tape image</a> · Japanwelt · CC BY-SA 3.0 (cropped/scaled)</li></ul><p>These materials are decorative. Original interactive labels, cards, and page layout remain custom-built.</p></details>
+        let portfolioState = JSON.parse(localStorage.getItem("messy_desk_portfolio_v1")) || defaultData;
+        let currentActiveFolder = "home";
+        let uploadedImageBase64 = "";
+        let pendingDeleteId = null;
+
+        // Sistem Notifikasi Toast Non-Blocking
+        function showToast(message, isError = false) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg font-mono-tech text-xs text-white animate-pop ${isError ? "bg-red-700" : "bg-[#22201e] border border-white/20"}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transition = "opacity 0.3s ease";
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem("messy_desk_portfolio_v1", JSON.stringify(portfolioState));
+            } catch (e) {
+                showToast("Penyimpanan browser penuh. Gunakan gambar lebih kecil atau URL gambar.", true);
+            }
+        }
+
+        // Perpindahan Folder
+        function selectFolder(folderName) {
+            currentActiveFolder = folderName;
+            const folders = ["home", "art", "writings", "web"];
+
+            folders.forEach(f => {
+                const el = document.getElementById(`folder-${f}`);
+                const qTab = document.querySelector(`.q-tab[data-target="${f}"]`);
+                if (f === folderName) {
+                    el.classList.remove("collapsed");
+                    el.classList.add("active");
+                    if (qTab) qTab.classList.add("active");
+                } else {
+                    el.classList.remove("active");
+                    el.classList.add("collapsed");
+                    if (qTab) qTab.classList.remove("active");
+                }
+            });
+        }
+
+        function handleFolderClick(event, folderName) {
+            const el = document.getElementById(`folder-${folderName}`);
+            if (el.classList.contains("collapsed")) {
+                selectFolder(folderName);
+            }
+        }
+
+        // Render Semua Konten
+        function renderPortfolio() {
+            document.getElementById("home-owner-name").textContent = portfolioState.profile.ownerName;
+            document.getElementById("home-tagline").textContent = portfolioState.profile.tagline;
+            document.getElementById("home-bio").textContent = portfolioState.profile.bio;
+            document.getElementById("home-polaroid-caption").textContent = portfolioState.profile.caption;
+            if (portfolioState.profile.photo) {
+                document.getElementById("home-photo").src = portfolioState.profile.photo;
+            }
+
+            const categories = ["art", "writings", "web"];
+            categories.forEach(cat => {
+                const items = portfolioState.works.filter(w => w.category === cat);
+                
+                document.getElementById(`tab-count-${cat}`).textContent = items.length;
+                document.getElementById(`badge-${cat}`).textContent = `(${items.length})`;
+                document.getElementById(`home-count-${cat}`).textContent = `${items.length} karya →`;
+
+                const grid = document.getElementById(`grid-${cat}`);
+                grid.innerHTML = "";
+
+                if (items.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-full bg-white/65 border-[1.5px] border-dashed border-black/20 py-10 px-6 text-center rounded-xl font-mono-tech">
+                            <p class="mb-3 text-sm">Folder <strong>${cat.toUpperCase()}</strong> masih kosong.</p>
+                            <button onclick="openUploadModal('${cat}')" class="bg-[#c84b31] hover:bg-[#ad3c24] text-white text-xs font-bold px-4 py-2.5 rounded-full cursor-pointer">+ Unggah Karya Pertama</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                items.forEach(item => {
+                    const card = document.createElement("article");
+                    card.className = "work-card";
+                    card.onclick = (e) => {
+                        if (e.target.closest(".btn-delete-item")) return;
+                        openInspectModal(item.id);
+                    };
+
+                    let mediaHTML = "";
+                    if (cat === "writings") {
+                        const snippet = (item.fullText || item.description || "").slice(0, 210);
+                        mediaHTML = `<div class="writing-sheet-preview">${escapeHTML(snippet)}...</div>`;
+                    } else {
+                        const imgSrc = item.image || sampleArt2;
+                        mediaHTML = `
+                            <div class="w-full h-48 bg-[#f2efe9] overflow-hidden relative border border-black/5 rounded">
+                                <img src="${imgSrc}" alt="${escapeHTML(item.title)}" class="w-full h-full object-cover transition duration-300 hover:scale-105" onerror="this.src='${sampleArt2}'">
+                            </div>
+                        `;
+                    }
+
+                    const isConfirmingDelete = pendingDeleteId === item.id;
+                    const deleteBtnLabel = isConfirmingDelete ? "Yakin hapus?" : "Hapus";
+                    const deleteBtnStyle = isConfirmingDelete
+                        ? "bg-red-600 text-white px-2 py-0.5 rounded font-bold"
+                        : "text-[#9a928a] hover:bg-red-100 hover:text-red-600 px-1.5 py-0.5 rounded";
+
+                    card.innerHTML = `
+                        ${mediaHTML}
+                        <div class="font-mono-tech text-[10.5px] uppercase text-[#5a554f] mt-3 flex justify-between items-center">
+                            <span>⏱ ${escapeHTML(item.duration)}</span>
+                            <span>${escapeHTML(item.date || "2026")}</span>
+                        </div>
+                        <h3 class="font-serif-editorial text-2xl font-bold text-[#22201e] mt-1 leading-tight">${escapeHTML(item.title)}</h3>
+                        <p class="text-xs text-[#5a554f] mt-1.5 line-clamp-2">${escapeHTML(item.tools)}</p>
+                        <div class="mt-auto pt-3 flex justify-between items-center border-t border-dashed border-[#e2dcd2] font-mono-tech text-[11px]">
+                            <span class="text-[#c84b31] font-bold">Buka Berkas →</span>
+                            <button type="button" class="btn-delete-item transition cursor-pointer ${deleteBtnStyle}" onclick="deleteWork('${item.id}')">${deleteBtnLabel}</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        // Modal Detail Inspeksi Karya
+        function openInspectModal(id) {
+            const item = portfolioState.works.find(w => w.id === id);
+            if (!item) return;
+
+            const container = document.getElementById("inspectContent");
+            let mediaSection = "";
+
+            if (item.category === "writings") {
+                mediaSection = `
+                    <div class="md:col-span-7 bg-white p-3.5 rounded-xl shadow border border-[#e5dfd5] flex items-start">
+                        <div class="inspect-writing-full">${escapeHTML(item.fullText || item.description)}</div>
+                    </div>
+                `;
+            } else {
+                const imgSrc = item.image || sampleArt2;
+                mediaSection = `
+                    <div class="md:col-span-7 bg-white p-3.5 rounded-xl shadow border border-[#e5dfd5] flex items-center justify-center">
+                        <img src="${imgSrc}" alt="${escapeHTML(item.title)}" class="w-full max-h-[450px] object-contain rounded" onerror="this.src='${sampleArt2}'">
+                    </div>
+                `;
+            }
+
+            const linkButton = item.link
+                ? `<a href="${escapeHTML(item.link)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 bg-[#c84b31] hover:bg-[#a93922] text-white px-4 py-3 rounded-xl font-mono-tech text-xs font-bold mt-2 transition">↗ Kunjungi Live Website</a>`
+                : "";
+
+            container.innerHTML = `
+                ${mediaSection}
+                <div class="md:col-span-5 flex flex-col gap-3.5">
+                    <span class="self-start bg-[#22201e] text-white font-mono-tech text-[11px] px-2.5 py-1 rounded uppercase">FOLDER // ${item.category.toUpperCase()}</span>
+                    <h2 class="font-serif-editorial text-3xl font-bold leading-tight">${escapeHTML(item.title)}</h2>
+                    
+                    <div class="bg-white border border-[#e2dcd0] rounded-xl p-4 flex flex-col gap-2.5 font-mono-tech text-xs">
+                        <div class="flex justify-between border-b border-dashed border-[#ebe5da] pb-2 gap-3">
+                            <span class="text-[#5a554f]">Lama Pembuatan</span>
+                            <span class="font-bold text-right text-[#22201e]">${escapeHTML(item.duration)}</span>
+                        </div>
+                        <div class="flex justify-between border-b border-dashed border-[#ebe5da] pb-2 gap-3">
+                            <span class="text-[#5a554f]">Aplikasi / Tools</span>
+                            <span class="font-bold text-right text-[#22201e]">${escapeHTML(item.tools)}</span>
+                        </div>
+                        <div class="flex justify-between gap-3">
+                            <span class="text-[#5a554f]">Waktu Arsip</span>
+                            <span class="font-bold text-right text-[#22201e]">${escapeHTML(item.date || "2026")}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-sm leading-relaxed text-[#3a3632] bg-white/70 p-3.5 rounded-xl border-l-4 border-[#c84b31]">
+                        <strong class="block font-mono-tech text-[11px] mb-1">CATATAN KARYA:</strong>
+                        ${escapeHTML(item.description || "Tidak ada catatan tambahan.")}
+                    </div>
+                    ${linkButton}
+                </div>
+            `;
+
+            const modal = document.getElementById("inspectModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        // Kontrol Modal Unggah Karya
+        function openUploadModal(defaultCat) {
+            document.getElementById("uploadForm").reset();
+            uploadedImageBase64 = "";
+            const prev = document.getElementById("uploadPreviewImg");
+            prev.classList.add("hidden");
+            prev.src = "";
+
+            if (defaultCat && ["art", "writings", "web"].includes(defaultCat)) {
+                document.getElementById("workCategory").value = defaultCat;
+            } else if (["art", "writings", "web"].includes(currentActiveFolder)) {
+                document.getElementById("workCategory").value = currentActiveFolder;
+            }
+            toggleFormFields();
+            const modal = document.getElementById("uploadModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function toggleFormFields() {
+            const cat = document.getElementById("workCategory").value;
+            const groupImg = document.getElementById("groupImageUpload");
+            const groupText = document.getElementById("groupWritingBody");
+            const groupLink = document.getElementById("groupLink");
+            const toolsInput = document.getElementById("workTools");
+
+            if (cat === "writings") {
+                groupImg.classList.add("hidden");
+                groupText.classList.remove("hidden");
+                groupText.classList.add("flex");
+                groupLink.classList.add("hidden");
+                toolsInput.placeholder = "Misal: Google Docs, Notion, MS Word";
+            } else if (cat === "web") {
+                groupImg.classList.remove("hidden");
+                groupText.classList.add("hidden");
+                groupLink.classList.remove("hidden");
+                groupLink.classList.add("flex");
+                toolsInput.placeholder = "Misal: HTML, CSS, JavaScript, Vercel";
+            } else {
+                groupImg.classList.remove("hidden");
+                groupText.classList.add("hidden");
+                groupLink.classList.add("hidden");
+                toolsInput.placeholder = "Misal: Clip Studio Paint, Procreate, Canva";
+            }
+        }
+
+        function previewUploadedImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageBase64 = e.target.result;
+                const prev = document.getElementById("uploadPreviewImg");
+                prev.src = uploadedImageBase64;
+                prev.classList.remove("hidden");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleSaveWork(event) {
+            event.preventDefault();
+            const category = document.getElementById("workCategory").value;
+            const title = document.getElementById("workTitle").value.trim();
+            const duration = document.getElementById("workDuration").value.trim();
+            const tools = document.getElementById("workTools").value.trim();
+            const date = document.getElementById("workDate").value.trim() || "2026";
+            const link = document.getElementById("workLink").value.trim();
+            const imageUrl = document.getElementById("workImageUrl").value.trim();
+            const fullText = document.getElementById("workFullText").value.trim();
+            const description = document.getElementById("workDescription").value.trim();
+
+            const newWork = {
+                id: `${category}-${Date.now()}`,
+                category,
+                title,
+                duration,
+                tools,
+                date,
+                link,
+                image: uploadedImageBase64 || imageUrl || "",
+                fullText,
+                description
+            };
+
+            portfolioState.works.unshift(newWork);
+            saveState();
+            renderPortfolio();
+            closeModal("uploadModal");
+            selectFolder(category);
+            showToast(`Karya "${title}" berhasil disimpan ke folder ${category.toUpperCase()}!`);
+        }
+
+        // Hapus Karya dengan Konfirmasi 2-Klik Aman
+        function deleteWork(id) {
+            if (pendingDeleteId !== id) {
+                pendingDeleteId = id;
+                renderPortfolio();
+                setTimeout(() => {
+                    if (pendingDeleteId === id) {
+                        pendingDeleteId = null;
+                        renderPortfolio();
+                    }
+                }, 3000);
+                return;
+            }
+            pendingDeleteId = null;
+            portfolioState.works = portfolioState.works.filter(w => w.id !== id);
+            saveState();
+            renderPortfolio();
+            showToast("Berkas karya telah dihapus dari folder.");
+        }
+
+        // Edit Profil Folder Home
+        function openEditProfileModal() {
+            document.getElementById("editOwnerName").value = portfolioState.profile.ownerName;
+            document.getElementById("editTagline").value = portfolioState.profile.tagline;
+            document.getElementById("editBio").value = portfolioState.profile.bio;
+            document.getElementById("editCaption").value = portfolioState.profile.caption;
+            const modal = document.getElementById("profileModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function saveProfileChanges(event) {
+            event.preventDefault();
+            portfolioState.profile.ownerName = document.getElementById("editOwnerName").value.trim();
+            portfolioState.profile.tagline = document.getElementById("editTagline").value.trim();
+            portfolioState.profile.bio = document.getElementById("editBio").value.trim();            portfolioState.profile.caption = document.getElementById("editCaption").value.trim();
+
+            const fileInput = document.getElementById("editHomePhotoFile");
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    portfolioState.profile.photo = e.target.result;
+                    saveState();
+                    renderPortfolio();
+                    closeModal("profileModal");
+                    showToast("Profil folder Home berhasil diperbarui!");
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveState();
+                renderPortfolio();
+                closeModal("profileModal");
+                showToast("Profil folder Home berhasil diperbarui!");
+            }
+        }
+
+        // Export & Import JSON Backup
+        function exportPortfolioJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(portfolioState, null, 2));
+            const dlAnchor = document.createElement("a");
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", "messy-desk-portfolio-backup.json");
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+            showToast("File backup JSON berhasil diunduh.");
+        }
+
+        function importPortfolioJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.works && parsed.profile) {
+                        portfolioState = parsed;
+                        saveState();
+                        renderPortfolio();
+                        showToast("Data portofolio berhasil dimuat dari file JSON!");
+                    } else {
+                        showToast("Struktur file JSON tidak sesuai.", true);
+                    }
+                } catch (err) {
+                    showToast("Format file JSON tidak valid.", true);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Utilitas Modal
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function closeModalOnBackdrop(event, id) {
+            if (event.target.id === id) {
+                closeModal(id);
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return "";
+            return str.replace(/[&<>"']/g, m => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m]));
+        }
+
+        // Inisialisasi
+        renderPortfolio();
+    </script>
 </body>
 </html>
