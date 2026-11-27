@@ -57,6 +57,15 @@
         .font-mono-tech { font-family: 'Space Mono', monospace; }
         .font-serif-editorial { font-family: 'Cormorant Garamond', serif; }
         .font-handwriting { font-family: 'Kalam', 'Segoe Print', cursive; font-style: normal; font-weight: 400; }
+        .unfiled-detail-image {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: min(70vh, 820px);
+            object-fit: contain;
+            border-radius: 6px;
+        }
 
 /* One consistent handwritten identity across the pinned note and Polaroid. */
 #home-tagline {
@@ -523,13 +532,22 @@
         </div>
     </div>
 
+    <!-- Full artwork viewer. Uses uncropped original image, separate from the thumbnail. -->
+    <div id="fullImageModal" class="fixed inset-0 z-[170] hidden items-center justify-center p-3 sm:p-6 bg-[#12100e]/95" onclick="closeModalOnBackdrop(event,'fullImageModal')" role="dialog" aria-modal="true" aria-label="Lihat ilustrasi penuh">
+        <button type="button" onclick="closeModal('fullImageModal')" class="absolute top-3 right-4 z-10 bg-[#faf7f0] text-[#22201e] rounded-full h-10 w-10 flex items-center justify-center font-bold" aria-label="Tutup foto">×</button>
+        <figure class="flex flex-col items-center justify-center w-full h-full gap-2">
+            <img id="fullImageImg" class="block max-w-full max-h-[88vh] w-auto h-auto object-contain rounded shadow-2xl" alt="Ilustrasi lengkap">
+            <figcaption id="fullImageCaption" class="font-mono-tech text-xs text-[#faf7f0] text-center"></figcaption>
+        </figure>
+    </div>
+
     <!-- MODAL 2: UNGGAH KARYA BARU -->
     <div class="fixed inset-0 bg-[#12100e]/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 overflow-y-auto" id="uploadModal" onclick="closeModalOnBackdrop(event, 'uploadModal')">
         <div class="bg-[#faf7f0] w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl relative p-6 sm:p-8 border border-white/70 animate-pop">
             <button onclick="closeModal('uploadModal')" class="absolute top-4 right-5 bg-[#22201e] hover:bg-[#c84b31] text-white w-9 h-9 rounded-full font-mono-tech text-lg flex items-center justify-center transition cursor-pointer">&times;</button>
             <span class="inline-block border border-[#22201e] px-2.5 py-0.5 font-mono-tech text-[11px] uppercase bg-white/70 mb-2">ENTRI ARSIP BARU</span>
             <h2 class="font-serif-editorial text-3xl font-bold">Unggah Karya ke Folder</h2>
-            <p class="text-xs text-[#5a554f] mt-1">Unggah foto, atur crop dengan menggeser dan zoom, lalu simpan karya langsung ke arsip online UNFILED.</p>
+            <p class="text-xs text-[#5a554f] mt-1">Atur crop untuk thumbnail galeri. Foto utuh tetap tersimpan dan ditampilkan saat karya dibuka.</p>
 
             <form id="uploadForm" onsubmit="handleSaveWork(event)" class="mt-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -818,7 +836,7 @@
                         const snippet = (item.fullText || item.description || "").slice(0, 210);
                         mediaHTML = `<div class="writing-sheet-preview">${escapeHTML(snippet)}...</div>`;
                     } else {
-                        const imgSrc = item.image || sampleArt2;
+                        const imgSrc = item.thumbnail || item.image || sampleArt2;
                         mediaHTML = `
                             <div class="w-full h-48 bg-[#f2efe9] overflow-hidden relative border border-black/5 rounded">
                                 <img src="${imgSrc}" alt="${escapeHTML(item.title)}" class="w-full h-full object-cover transition duration-300 hover:scale-105" onerror="this.src='${sampleArt2}'">
@@ -850,6 +868,23 @@
             });
         }
 
+        // Artwork detail uses full original; thumbnails have a separate crop.
+        function openFullArtwork(id) {
+            const item = portfolioState.works.find(w => w.id === id);
+            if (!item || !item.image) return;
+            document.getElementById("fullImageImg").src = item.image;
+            document.getElementById("fullImageImg").alt = item.title;
+            document.getElementById("fullImageCaption").textContent = item.title;
+            const overlay = document.getElementById("fullImageModal");
+            overlay.classList.remove("hidden");
+            overlay.classList.add("flex");
+        }
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape" && !document.getElementById("fullImageModal").classList.contains("hidden")) {
+                closeModal("fullImageModal");
+            }
+        });
+
         // Modal Detail Inspeksi Karya
         function openInspectModal(id) {
             const item = portfolioState.works.find(w => w.id === id);
@@ -868,7 +903,10 @@
                 const imgSrc = item.image || sampleArt2;
                 mediaSection = `
                     <div class="md:col-span-7 bg-white p-3.5 rounded-xl shadow border border-[#e5dfd5] flex items-center justify-center">
-                        <img src="${imgSrc}" alt="${escapeHTML(item.title)}" class="w-full max-h-[450px] object-contain rounded" onerror="this.src='${sampleArt2}'">
+                        <button type="button" class="w-full flex items-center justify-center cursor-zoom-in" title="Lihat gambar ukuran penuh" onclick="openFullArtwork('${item.id}')">
+                            <img src="${imgSrc}" alt="${escapeHTML(item.title)}" class="unfiled-detail-image" onerror="this.src='${sampleArt2}'">
+                        </button>
+                        <p class="text-[10px] text-[#82796d] font-mono-tech mt-2">KLIK GAMBAR UNTUK MELIHAT UKURAN PENUH</p>
                     </div>
                 `;
             }
