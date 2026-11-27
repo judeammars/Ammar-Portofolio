@@ -509,7 +509,7 @@
             <button onclick="closeModal('uploadModal')" class="absolute top-4 right-5 bg-[#22201e] hover:bg-[#c84b31] text-white w-9 h-9 rounded-full font-mono-tech text-lg flex items-center justify-center transition cursor-pointer">&times;</button>
             <span class="inline-block border border-[#22201e] px-2.5 py-0.5 font-mono-tech text-[11px] uppercase bg-white/70 mb-2">ENTRI ARSIP BARU</span>
             <h2 class="font-serif-editorial text-3xl font-bold">Unggah Karya ke Folder</h2>
-            <p class="text-xs text-[#5a554f] mt-1">Karya otomatis tersimpan di penyimpanan browser dan dapat di-export ke JSON kapan saja.</p>
+            <p class="text-xs text-[#5a554f] mt-1">Unggah foto, atur crop dengan menggeser dan zoom, lalu simpan karya langsung ke arsip online UNFILED.</p>
 
             <form id="uploadForm" onsubmit="handleSaveWork(event)" class="mt-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -552,7 +552,7 @@
                         <div onclick="document.getElementById('workImageFile').click()" class="border-2 border-dashed border-[#b9b0a2] hover:border-[#c84b31] bg-white hover:bg-[#fffaf8] p-4 rounded-xl text-center cursor-pointer transition">
                             <span class="font-mono-tech text-xs">📁 Klik untuk memilih file gambar dari perangkat</span>
                             <input type="file" id="workImageFile" accept="image/*" class="hidden" onchange="previewUploadedImage(event)">
-                            <img id="uploadPreviewImg" class="max-h-28 mx-auto mt-2.5 rounded hidden" alt="Pratinjau">
+                            <img id="uploadPreviewImg" class="max-h-28 mx-auto mt-2.5 rounded hidden" alt="Pratinjau crop yang akan diunggah"><span class="block mt-2 text-[10px] text-[#6e685f]">Setelah memilih foto, kamu bisa geser, zoom, crop, atau memilih tampil utuh.</span>
                         </div>
                         <input type="url" id="workImageUrl" placeholder="Atau tempel URL gambar (https://...)" class="px-3 py-2 border border-[#d5cec2] rounded-lg bg-white text-sm mt-1">
                     </div>
@@ -601,7 +601,7 @@
                 </div>
                 <div class="flex flex-col gap-1">
                     <label class="font-mono-tech text-xs font-bold uppercase">Ganti Foto Polaroid Home (Opsional)</label>
-                    <input type="file" id="editHomePhotoFile" accept="image/*" class="text-xs font-mono-tech">
+                    <input type="file" id="editHomePhotoFile" accept="image/*" class="text-xs font-mono-tech"><span class="text-[10px] text-[#6e685f]">Pilih foto untuk mengatur crop dan zoom sebelum disimpan.</span>
                 </div>
                 <button type="submit" class="self-end mt-2 bg-[#c84b31] hover:bg-[#ad3c24] text-white font-mono-tech text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">Simpan Profil</button>
             </form>
@@ -1110,5 +1110,6 @@
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2.57.4"></script>
     <script src="./unfiled-cloud.js"></script>
+    <script src="./unfiled-crop.js"></script>
 </body>
 </html>
