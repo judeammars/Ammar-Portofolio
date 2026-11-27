@@ -24,8 +24,8 @@ modal.innerHTML = '<section class="bg-[#faf7f0] text-[#22201e] w-full max-w-md r
 '<button type="button" id="uf-close" class="absolute right-4 top-4 bg-[#22201e] text-white w-9 h-9 rounded-full">×</button>' +
 '<p class="font-mono-tech text-xs text-[#c84b31] mb-2">UNFILED. // OWNER ACCESS</p>' +
 '<h2 class="font-serif-editorial text-3xl font-bold mb-2">Admin Login</h2>' +
-'<p class="text-xs text-[#5a554f] mb-5">Gunakan akun admin Athenaeum yang sudah ada. Izin edit UNFILED. tetap terpisah dari Athenaeum.</p>' +
-'<form id="uf-login" class="flex flex-col gap-3"><input id="uf-email" type="email" autocomplete="username" required placeholder="Email admin" class="border rounded-lg px-3 py-2.5 bg-white text-sm">' +
+'<p class="text-xs text-[#5a554f] mb-5">Masuk dengan username <strong>AMMAR</strong> dan password akun portofoliomu. Hak edit hanya berlaku untuk UNFILED.</p>' +
+'<form id="uf-login" class="flex flex-col gap-3"><input id="uf-username" type="text" autocomplete="username" required maxlength="32" placeholder="Username" value="AMMAR" class="border rounded-lg px-3 py-2.5 bg-white text-sm uppercase">' +
 '<input id="uf-password" type="password" autocomplete="current-password" required placeholder="Password" class="border rounded-lg px-3 py-2.5 bg-white text-sm">' +
 '<p id="uf-error" class="text-red-700 text-xs hidden" role="alert"></p>' +
 '<button id="uf-submit" type="submit" class="bg-[#22201e] text-white rounded-full py-3 text-xs font-mono-tech">Login</button></form>' +
@@ -88,8 +88,20 @@ modal.querySelector('#uf-login').addEventListener('submit',async function(e){
  var btn=modal.querySelector('#uf-submit'),err=modal.querySelector('#uf-error');
  err.classList.add('hidden');btn.disabled=true;btn.textContent='Checking…';
  try{
-  var r=await db.auth.signInWithPassword({email:modal.querySelector('#uf-email').value.trim(),
-    password:modal.querySelector('#uf-password').value});
+  var response=await fetch('https://bsmapmixfpiwvoptpbxt.supabase.co/functions/v1/unfiled-username-login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':'sb_publishable_a51cyBh8tj1kBOiVkgAyKQ_b6ItnHrx'},
+    body:JSON.stringify({
+      username:modal.querySelector('#uf-username').value.trim(),
+      password:modal.querySelector('#uf-password').value
+    })
+  });
+  var result=await response.json().catch(function(){return {};});
+  if(!response.ok||!result.session)throw Error(result.error||'Login gagal. Silakan coba lagi.');
+  var r=await db.auth.setSession({
+    access_token:result.session.access_token,
+    refresh_token:result.session.refresh_token
+  });
   if(r.error)throw r.error;
   await checkAuth();
   modal.querySelector('#uf-password').value='';
