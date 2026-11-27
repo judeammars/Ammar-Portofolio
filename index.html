@@ -130,6 +130,25 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.55);
         }
 
+        /* Continue the previous folder material behind the open folder.
+           This fills the visible desk-colored strip between stacked folders. */
+        .folder-layer.collapsed:has(+ .folder-layer.active) {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .folder-layer.collapsed:has(+ .folder-layer.active)::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% - 1px);
+            height: 22px;
+            background-color: inherit;
+            background-image: var(--paper-noise);
+            border-radius: 0 0 14px 14px;
+            pointer-events: none;
+        }
+
         /* Quick Tab Switcher */
         .q-tab {
             padding: 7px 14px;
