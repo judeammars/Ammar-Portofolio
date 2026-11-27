@@ -139,10 +139,11 @@ document.querySelector('#uploadForm .grid').appendChild(publication);
 window.openUploadModal=function(cat){
  if(!guard())return;
  editingId=null;orig.upload(cat);
+ if(window.UNFILED_CROP)window.UNFILED_CROP.reset('workImageFile');
  document.querySelector('#uploadModal h2').textContent='Unggah Karya ke Folder';
  document.querySelector('#uf-published').checked=true;
 };
-window.openEditProfileModal=function(){if(guard())orig.profile();};
+window.openEditProfileModal=function(){if(!guard())return;orig.profile();if(window.UNFILED_CROP)window.UNFILED_CROP.reset('editHomePhotoFile');};
 window.exportPortfolioJSON=function(){if(guard())orig.export();};
 window.openInspectModal=function(id){
  orig.inspect(id);
@@ -158,7 +159,7 @@ function edit(id){
  if(!guard())return;
  var w=portfolioState.works.find(function(x){return x.id===id;});
  if(!w)return;
- orig.upload(w.category);editingId=id;
+ orig.upload(w.category);if(window.UNFILED_CROP)window.UNFILED_CROP.reset('workImageFile');editingId=id;
  document.querySelector('#uploadModal h2').textContent='Edit Karya';
  document.querySelector('#workCategory').value=w.category;
  document.querySelector('#workTitle').value=w.title;
@@ -183,7 +184,7 @@ window.handleSaveWork=async function(event){
   if(url&&!httpURL(url))throw Error('URL gambar harus HTTP(S).');
   if(link&&!httpURL(link))throw Error('URL website harus HTTP(S).');
   var image=url||(old?old.image:''),path=url?'':(old?old.imagePath:'');
-  var file=document.getElementById('workImageFile').files[0];
+  var file=(window.UNFILED_CROP&&window.UNFILED_CROP.getFile('workImageFile'))||document.getElementById('workImageFile').files[0];
   if(file&&category!=='writings'){
     var result=await upload(file);image=result.url;path=result.path;newPath=result.path;
   }
@@ -199,7 +200,7 @@ window.handleSaveWork=async function(event){
   var save=await db.from('unfiled_works').upsert(record,{onConflict:'id'});
   if(save.error)throw save.error;
   if(old&&old.imagePath&&old.imagePath!==path)await deleteImage(old.imagePath);
-  editingId=null;await reload();closeModal('uploadModal');selectFolder(category);
+  editingId=null;await reload();closeModal('uploadModal');if(window.UNFILED_CROP)window.UNFILED_CROP.reset('workImageFile');selectFolder(category);
   showToast('Karya berhasil disimpan online.');
  }catch(ex){if(newPath)await deleteImage(newPath);showToast('Gagal menyimpan: '+ex.message,true);}
  finally{btn.disabled=false;btn.textContent='Simpan ke Folder';}
@@ -223,7 +224,7 @@ window.saveProfileChanges=async function(event){
  var btn=event.target.querySelector('button[type=submit]');btn.disabled=true;
  var newPath='';
  try{
-  var file=document.getElementById('editHomePhotoFile').files[0];
+  var file=(window.UNFILED_CROP&&window.UNFILED_CROP.getFile('editHomePhotoFile'))||document.getElementById('editHomePhotoFile').files[0];
   var image=portfolioState.profile.photo||'',path=profilePath;
   if(file){var up=await upload(file);image=up.url;path=up.path;newPath=up.path;}
   var profile={id:1,owner_name:document.getElementById('editOwnerName').value.trim(),
@@ -234,7 +235,7 @@ window.saveProfileChanges=async function(event){
   var result=await db.from('unfiled_profile').upsert(profile,{onConflict:'id'});
   if(result.error)throw result.error;
   if(profilePath&&profilePath!==path)await deleteImage(profilePath);
-  await reload();closeModal('profileModal');showToast('Profil tersimpan online.');
+  await reload();closeModal('profileModal');if(window.UNFILED_CROP)window.UNFILED_CROP.reset('editHomePhotoFile');showToast('Profil tersimpan online.');
  }catch(ex){if(newPath)await deleteImage(newPath);showToast('Gagal menyimpan profil: '+ex.message,true);}
  finally{btn.disabled=false;}
 };
