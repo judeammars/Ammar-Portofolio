@@ -60,7 +60,8 @@ function httpURL(v){
 function mapWork(w){return {id:w.id,category:w.category,title:w.title,duration:w.duration,
   tools:w.tools,date:w.date_label,image:w.image_url||'',imagePath:w.image_path||'',
   thumbnail:w.thumbnail_url||'',thumbnailPath:w.thumbnail_path||'',
-  link:w.link||'',fullText:w.full_text||'',description:w.description||'',
+  link:w.link||'',fullText:w.full_text||'',fullHtml:w.content_html||'',
+  spotifyUrl:w.spotify_url||'',description:w.description||'',
   isPublished:w.is_published!==false,sortOrder:w.sort_order||0};}
 async function reload(){
  var results=await Promise.all([
@@ -167,6 +168,8 @@ window.openUploadModal=function(cat){
  editingId=null;orig.upload(cat);
  if(window.UNFILED_CROP)window.UNFILED_CROP.reset('workImageFile');
  document.querySelector('#uploadModal h2').textContent='Unggah Karya ke Folder';
+ if(window.UNFILED_WRITING)window.UNFILED_WRITING.setEditor('','');
+ document.querySelector('#workSpotify').value='';
  document.querySelector('#uf-published').checked=true;
 };
 window.openEditProfileModal=function(){if(!guard())return;orig.profile();if(window.UNFILED_CROP)window.UNFILED_CROP.reset('editHomePhotoFile');};
@@ -195,6 +198,8 @@ function edit(id){
  document.querySelector('#workLink').value=w.link||'';
  document.querySelector('#workDescription').value=w.description||'';
  document.querySelector('#workFullText').value=w.fullText||'';
+ if(window.UNFILED_WRITING)window.UNFILED_WRITING.setEditor(w.fullHtml||'',w.fullText||'');
+ document.querySelector('#workSpotify').value=w.spotifyUrl||'';
  document.querySelector('#workImageUrl').value=/^https?:\/\//.test(w.image)?w.image:'';
  document.querySelector('#uf-published').checked=w.isPublished!==false;
  toggleFormFields();closeModal('inspectModal');
@@ -207,6 +212,12 @@ window.handleSaveWork=async function(event){
   var get=function(id){return document.getElementById(id).value.trim();};
   var category=get('workCategory'),old=portfolioState.works.find(function(w){return w.id===editingId;});
   var url=get('workImageUrl'),link=get('workLink');
+  var writing=window.UNFILED_WRITING;
+  var spotify=category==='writings' && writing ? writing.normalizeSpotify(get('workSpotify')) : '';
+  if(spotify===null)throw Error('Link Spotify tidak valid. Gunakan tautan https://open.spotify.com/track/... atau playlist, album, dan episode.');
+  var fullText=category==='writings' && writing ? writing.getText() : get('workFullText');
+  var contentHtml=category==='writings' && writing ? writing.getHtml() : '';
+  if(category==='writings'&&!fullText.trim())throw Error('Isi tulisan tidak boleh kosong.');
   if(url&&!httpURL(url))throw Error('URL gambar harus HTTP(S).');
   if(link&&!httpURL(link))throw Error('URL website harus HTTP(S).');
   var image=old?(old.image||''):'',path=old?(old.imagePath||''):'';
@@ -230,13 +241,15 @@ window.handleSaveWork=async function(event){
   if(category==='writings'){image='';path='';thumbnail='';thumbnailPath='';}
   var id=editingId||category+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
   var record={id:id,category:category,title:get('workTitle'),duration:get('workDuration'),
-   tools:get('workTools'),date_label:get('workDate')||String(new Date().getFullYear()),
+   tools:category==='writings'?(old?old.tools:''):get('workTools'),date_label:get('workDate')||String(new Date().getFullYear()),
    image_url:image||'',image_path:path||'',
    thumbnail_url:thumbnail||'',thumbnail_path:thumbnailPath||'',
-   link:httpURL(link),full_text:get('workFullText'),description:get('workDescription'),
+   link:httpURL(link),full_text:fullText,content_html:contentHtml,
+   spotify_url:spotify||'',description:get('workDescription'),
    is_published:document.getElementById('uf-published').checked,
    sort_order:old?old.sortOrder:0,updated_at:new Date().toISOString()};
-  if(!record.title||!record.duration||!record.tools)throw Error('Lengkapi judul, durasi, dan tools.');
+  if(!record.title||!record.duration||(category!=='writings'&&!record.tools))
+    throw Error(category==='writings'?'Lengkapi judul dan durasi tulisan.':'Lengkapi judul, durasi, dan tools.');
   var save=await db.from('unfiled_works').upsert(record,{onConflict:'id'});
   if(save.error)throw save.error;
   // Delete only superseded UNFILED files, once the database change succeeds.
@@ -302,7 +315,9 @@ async function importObject(input){
   var row={id:id,category:w.category,title:String(w.title).slice(0,200),
    duration:String(w.duration||''),tools:String(w.tools||''),date_label:String(w.date||''),
    image_url:image,image_path:path,link:httpURL(w.link),
-   full_text:String(w.fullText||''),description:String(w.description||''),is_published:true};
+   full_text:String(w.fullText||''),content_html:w.category==='writings'&&window.UNFILED_WRITING?window.UNFILED_WRITING.sanitize(w.fullHtml||''):'',
+   spotify_url:w.category==='writings'&&window.UNFILED_WRITING?(window.UNFILED_WRITING.normalizeSpotify(w.spotifyUrl||'')||''):'',
+   description:String(w.description||''),is_published:true};
   var result=await db.from('unfiled_works').upsert(row,{onConflict:'id'});
   if(result.error)throw result.error;
   count++;
