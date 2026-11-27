@@ -557,13 +557,15 @@
                                 <p class="font-handwriting text-center mt-2.5" id="home-polaroid-caption">Arsip Kreatif &amp; Catatan Meja</p>
                             </div>
 
-                            <div class="bg-white px-4 py-3 rounded shadow -rotate-1 flex justify-between items-center font-mono-tech text-[11px] border border-black/5">
-                                <div>
-                                    <strong id="home-owner-name">CREATOR STUDIO // ARSIP</strong><br>
-                                    <span class="text-[#6e685f]">PENYIMPANAN LOKAL AKTIF</span>
+                            <a href="https://t.me/satmoyed" target="_blank" rel="noopener noreferrer"
+                               class="group bg-white px-4 py-3 rounded shadow -rotate-1 flex justify-between items-center gap-4 border border-black/5 transition duration-200 hover:rotate-0 hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#c84b31]"
+                               aria-label="Chat si Ganteng di Telegram, @satmoyed">
+                                <div class="flex flex-col gap-0.5 min-w-0">
+                                    <strong class="font-mono-tech text-[13px] sm:text-sm text-[#22201e] tracking-tight">Chat si Ganteng</strong>
+                                    <span class="font-mono-tech text-[10px] text-[#786f66]">@satmoyed // TELEGRAM</span>
                                 </div>
-                                <div class="barcode-lines"></div>
-                            </div>
+                                <span aria-hidden="true" class="h-9 w-9 shrink-0 flex items-center justify-center rounded-full bg-[#22201e] text-white text-lg group-hover:bg-[#c84b31] transition-colors">↗</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -859,7 +861,6 @@
 
         // Render Semua Konten
         function renderPortfolio() {
-            document.getElementById("home-owner-name").textContent = portfolioState.profile.ownerName;
             document.getElementById("home-tagline").textContent = portfolioState.profile.tagline;
             document.getElementById("home-bio").textContent = portfolioState.profile.bio;
             document.getElementById("home-polaroid-caption").textContent = portfolioState.profile.caption;
